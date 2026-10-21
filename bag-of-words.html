@@ -4,21 +4,629 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bag of Words — Laboratório Interativo</title>
 <style>
-:root{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#f0edff;background:#120f27}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#21173d 0,#120f27 55%);min-height:100vh}.wrap{max-width:1150px;margin:auto;padding:24px 18px 70px}.line{height:4px;background:linear-gradient(90deg,#ffa83f,#ed43a6,#9b8cff);border-radius:5px;margin-bottom:22px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:800;color:#fc75b6}h1{color:#aaa1ff;font-size:clamp(27px,4vw,43px);margin:9px 0}p{line-height:1.6;color:#c7c0e1;margin:8px 0 18px}.card{border:1px solid #373058;border-radius:15px;background:rgba(34,29,65,.88);padding:20px;margin-top:20px;box-shadow:0 12px 30px #05030e22}.section-head{display:flex;align-items:center;gap:12px;margin-bottom:7px}.num{display:grid;place-items:center;background:#ff9c41;color:#17102c;border-radius:50%;height:32px;width:32px;font-weight:800}.num.pink{background:#f65aa5}h2{margin:0;font-size:19px}.muted{font-size:13px;color:#b9b3d5;margin:0 0 16px 44px}.columns{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{background:#292347;border-radius:9px;padding:14px;min-width:0}.label{font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:800;color:#b2a8d4;margin-bottom:12px}textarea{background:#17132f;color:#eee9ff;border:1px solid #403763;border-radius:8px;width:100%;min-height:185px;resize:vertical;padding:13px;font:14px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace}button{cursor:pointer;font-weight:750;border-radius:25px;border:1px solid #4c416d;color:#eae5ff;background:#252042;padding:10px 16px}button:hover{filter:brightness(1.15)}button.primary{background:linear-gradient(95deg,#ee438f,#ff74be);border:0;color:#231027}.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.tokens{display:flex;gap:6px;flex-wrap:wrap;align-content:start;min-height:140px}.token{font:12px ui-monospace,monospace;background:#1a1635;color:#e9e2ff;border:1px solid #3d345e;border-radius:4px;padding:5px 7px}.token b{color:#ffb0d0}.modes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}.mode.active{background:#f75eaa;border-color:#f75eaa;color:#220e28}.scroll{max-width:100%;overflow:auto;border:1px solid #40365d;border-radius:9px}.matrix{border-collapse:separate;border-spacing:3px;min-width:max-content;padding:10px}th,td{text-align:center;font-size:12px;padding:10px 8px;background:#221d3e;min-width:65px}th{font-size:11px;color:#b9ade5;font-weight:750}th:first-child{position:sticky;left:0;z-index:2;background:#2a234b}td:first-child{position:sticky;left:0;background:#2a234b;color:#e3ddff;font-weight:750}td.nonzero{background:#a72566;color:white;font-weight:800}td.zero{color:#77718e}.footer{color:#a9a2c6;font-size:13px;margin-top:15px}.stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:15px}.stat{border:1px solid #41355f;background:#241e41;padding:10px 14px;border-radius:9px;font-size:13px}.stat strong{color:#ff9aca} .err{color:#ffb8a6;font-size:13px;min-height:18px}@media(max-width:700px){.columns{grid-template-columns:1fr}.card{padding:15px}.muted{margin-left:0}td,th{min-width:56px;padding:8px 5px}}
+:root{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#f0edff;background:#120f27}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#21173d 0,#120f27 55%);min-height:100vh}.wrap{max-width:1150px;margin:auto;padding:24px 18px 70px}.line{height:4px;background:linear-gradient(90deg,#ffa83f,#ed43a6,#9b8cff);border-radius:5px;margin-bottom:22px}.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:11px;font-weight:800;color:#fc75b6}h1{color:#aaa1ff;font-size:clamp(27px,4vw,43px);margin:9px 0}p{line-height:1.6;color:#c7c0e1;margin:8px 0 18px}.card{border:1px solid #373058;border-radius:15px;background:rgba(34,29,65,.88);padding:20px;margin-top:20px;box-shadow:0 12px 30px #05030e22}.section-head{display:flex;align-items:center;gap:12px;margin-bottom:7px}.num{display:grid;place-items:center;background:#ff9c41;color:#17102c;border-radius:50%;height:32px;width:32px;font-weight:800}.num.pink{background:#f65aa5}h2{margin:0;font-size:19px}.muted{font-size:13px;color:#b9b3d5;margin:0 0 16px 44px}.columns{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{background:#292347;border-radius:9px;padding:14px;min-width:0}.label{font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:800;color:#b2a8d4;margin-bottom:12px}textarea{background:#17132f;color:#eee9ff;border:1px solid #403763;border-radius:8px;width:100%;min-height:185px;resize:vertical;padding:13px;font:14px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace}button{cursor:pointer;font-weight:750;border-radius:25px;border:1px solid #4c416d;color:#eae5ff;background:#252042;padding:10px 16px}button:hover{filter:brightness(1.15)}button.primary{background:linear-gradient(95deg,#ee438f,#ff74be);border:0;color:#231027}.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.tokens{display:flex;gap:6px;flex-wrap:wrap;align-content:start;min-height:140px}.token{font:12px ui-monospace,monospace;background:#1a1635;color:#e9e2ff;border:1px solid #3d345e;border-radius:4px;padding:5px 7px}.token b{color:#ffb0d0}.modes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}.mode.active{background:#f75eaa;border-color:#f75eaa;color:#220e28}.scroll{max-width:100%;overflow:auto;border:1px solid #40365d;border-radius:9px}.matrix{border-collapse:separate;border-spacing:3px;min-width:max-content;padding:10px}th,td{text-align:center;font-size:12px;padding:10px 8px;background:#221d3e;min-width:65px}th{font-size:11px;color:#b9ade5;font-weight:750}th:first-child{position:sticky;left:0;z-index:2;background:#2a234b}td:first-child{position:sticky;left:0;background:#2a234b;color:#e3ddff;font-weight:750}td.nonzero{background:#a72566;color:white;font-weight:800}td.zero{color:#77718e}.similarity td{min-width:55px;padding:9px 7px}.similarity th{min-width:55px}.sim-high{background:#a72566;color:#fff;font-weight:800}.sim-mid{background:#71305e;color:#fff}.sim-low{background:#292344;color:#ded9f4}.explain-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}.explain{background:#292347;padding:17px;border-radius:9px}.explain strong{display:block;color:#ff66ae;font-size:24px;margin:9px 0}.explain .label{margin:0}.explain p{font-size:13px;margin:0;color:#d0c9e4}.footer{color:#a9a2c6;font-size:13px;margin-top:15px}.stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:15px}.stat{border:1px solid #41355f;background:#241e41;padding:10px 14px;border-radius:9px;font-size:13px}.stat strong{color:#ff9aca} .err{color:#ffb8a6;font-size:13px;min-height:18px}@media(max-width:700px){.explain-grid{grid-template-columns:1fr}.columns{grid-template-columns:1fr}.card{padding:15px}.muted{margin-left:0}td,th{min-width:56px;padding:8px 5px}}
+[hidden]{display:none!important}
+label.label{display:block}button,select,input,textarea{accent-color:#f75eaa}button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid #ffc074;outline-offset:4px}button{font:inherit;font-size:13px;font-weight:700}button:disabled{cursor:default;opacity:.5}h3{font-size:15px;margin:0 0 14px}select{display:block;margin-top:7px;max-width:100%;width:100%;padding:10px 32px 10px 12px;border-radius:8px;background:#17132f;border:1px solid #514474;color:#eee9ff;font:inherit;font-size:14px}.settings{margin:20px 0 0;padding:16px;border:1px solid #4c416d;border-radius:10px;min-width:0}.settings legend{padding:0 8px;color:#e5dfff;font-size:14px;font-weight:700}.controls{display:flex;gap:20px;flex-wrap:wrap;align-items:center}.controls>label{font-size:13px;flex:1;min-width:170px;max-width:100%}.controls .check{display:flex;gap:10px;align-items:center}.check input{width:18px;height:18px;flex-shrink:0}.weight-label{margin-top:20px}.modes{margin-bottom:0}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:25px}.tab{border-radius:9px;color:#c7c0e1}.tab.active{background:#b2a5ff;color:#1c1234;border-color:#b2a5ff}.purple{background:#bc6bde}.notice{background:#332746;border-left:3px solid #ffc074;border-radius:6px;padding:14px;font-size:13px;margin:18px 0 0;overflow-wrap:anywhere}.comparison-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-top:16px}.direction-panel svg{width:100%;max-height:270px;display:block}.direction-panel p{margin-bottom:0}.pair-controls{margin-top:20px}.metrics{display:flex;gap:25px;flex-wrap:wrap}.metrics .label{display:block;margin:0}.metrics strong{display:block;color:#ffa1cb;font-size:clamp(24px,3vw,34px);margin:8px 0}.math{font:14px/1.9 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.vector-details{margin-top:15px}summary{cursor:pointer;color:#d9d0f7;font-size:13px;padding:4px 0}.vector-text{background:#17132f;border:1px solid #40365d;border-radius:7px;padding:12px;font:13px/1.8 ui-monospace,monospace;overflow:auto;max-height:180px;white-space:pre;max-width:100%;color:#e5dfff}.document-control{display:block;max-width:100%;width:450px;font-size:13px;margin:20px 0}.steps{display:grid;gap:12px}.step{background:#292347;border:1px solid #40365d;border-radius:10px;padding:16px;min-width:0}.step h3{display:flex;align-items:center;gap:10px}.step h3>span{background:#17132f;color:#ffa3ce;border-radius:50%;display:inline-grid;place-items:center;width:25px;height:25px;font-size:12px}.sample-text{font:15px/1.8 ui-monospace,monospace;color:#f0ebff;overflow-wrap:anywhere;white-space:pre-wrap}.token-flow{display:flex;gap:8px;flex-wrap:wrap;align-items:start}.token-step{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 12px;background:#17132f;border:1px solid #514474;border-radius:8px;max-width:100%;overflow-wrap:anywhere}.token-step>span{font:14px ui-monospace,monospace}.token-step small{font-size:10px;color:#b9b3d5}.token-step.removed{border-style:dashed;border-color:#e58c86;background:#352637}.removed>span{text-decoration:line-through;color:#ffb8a6}.removed small{color:#ffc0ab}.token-flow>.footer{width:100%}.bar-chart{display:grid;gap:11px;padding:15px 0}.bar-row{display:grid;grid-template-columns:minmax(70px,180px) minmax(0,1fr) 62px;gap:12px;align-items:center;min-width:0}.bar-term{font:13px/1.5 ui-monospace,monospace;overflow-wrap:anywhere}.bar-track{height:22px;background:#17132f;border-radius:4px;overflow:hidden}.bar-fill{height:100%;background:linear-gradient(90deg,#a74186,#ff83bf);border-radius:4px;min-width:2px}.bar-value{font:13px ui-monospace,monospace;text-align:right;color:#f6bfdc}.ngram-examples{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.ngram-examples code{font-size:13px;line-height:1.7;overflow-wrap:anywhere}.sim-cell{padding:0;min-width:0}.similarity .sim-cell button{display:block;border:0;border-radius:0;padding:10px 8px;width:100%;height:100%;background:transparent;color:inherit;font:inherit}.similarity .sim-cell button[aria-pressed=true]{outline:2px solid #ffc074;outline-offset:-2px}.tokens .token{overflow-wrap:anywhere;max-width:100%}.page-footer{text-align:center;margin-top:30px;font-size:12px;color:#a9a2c6}.card,.wrap,[role=tabpanel]{min-width:0}.footer{overflow-wrap:anywhere}.stats{gap:8px}.stat{font-size:12px}#pipelineStatus{margin-bottom:0}
+@media(max-width:700px){.comparison-grid{grid-template-columns:1fr}.ngram-examples{grid-template-columns:1fr}.controls{gap:12px}.controls>label{min-width:0;flex-basis:100%}.bar-row{grid-template-columns:minmax(65px,95px) minmax(0,1fr) 52px;gap:8px}.tabs{gap:6px}.tabs button{font-size:12px;padding:10px 11px}.step{padding:12px}.settings{padding:12px}.metrics{gap:28px}.pair-controls>label{flex-basis:calc(50% - 12px)}.direction-panel svg{max-height:230px}.explain strong{font-size:22px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+.distance-layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(230px,1fr);gap:16px;margin-top:20px}
+.map-surface{background:#17132f;border:1px solid #40365d;border-radius:12px;overflow:hidden;min-width:0}
+#distanceMap{width:100%;height:auto;display:block;min-height:210px}
+.map-point{cursor:pointer;outline:none}.map-point circle{stroke:#17132f;stroke-width:3;fill:#b4a6ff}.map-point text{fill:#ded6f5;font:13px system-ui,sans-serif;paint-order:stroke;stroke:#17132f;stroke-width:4px;stroke-linejoin:round}
+.map-point.selected-a circle{fill:#ff9aca}.map-point.selected-b circle{fill:#a2dbff}.map-point.selected-a.selected-b circle{fill:#ffd17f}
+.map-point:focus circle,.map-point:hover circle{stroke:#fff;stroke-width:3}.map-link{stroke:#ffd17f;stroke-width:2;stroke-dasharray:7 5}
+.map-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:#d2c9ed;margin-top:12px}.map-legend span:before{content:'';display:inline-block;width:10px;height:10px;border-radius:50%;background:#b4a6ff;margin-right:6px}.map-legend .legend-a:before{background:#ff9aca}.map-legend .legend-b:before{background:#a2dbff}.map-legend .legend-both:before{background:#ffd17f}
+.distance-number{font-size:42px;color:#ffd17f;display:block;margin:9px 0 15px;overflow-wrap:anywhere}.distance-scale{height:12px;background:linear-gradient(90deg,#ff9aca,#a2dbff);border-radius:10px;position:relative;margin-top:24px}.distance-scale:after{content:'';position:absolute;left:var(--distance-position,0%);transform:translateX(-50%);top:-5px;height:22px;width:4px;background:#fff;border-radius:3px}.distance-scale.undefined:after{display:none}.scale-labels{display:flex;justify-content:space-between;gap:10px;color:#b9b3d5;font-size:11px;margin:9px 0 18px}
+#distanceBars{max-height:360px;overflow:auto;display:grid;gap:9px;padding:3px}.distance-row{display:grid;grid-template-columns:70px minmax(0,1fr) 72px;gap:10px;align-items:center;width:100%;border-radius:7px;padding:10px;background:#292347;text-align:left;font-weight:400;min-width:0}.distance-row[aria-pressed=true]{border-color:#ffd17f}.distance-row .bar-fill{background:linear-gradient(90deg,#ff9aca,#a2dbff)}.distance-row .bar-track{height:16px}.distance-row .bar-value{font-size:12px}.distance-row small{color:#b9b3d5}
+.distance-controls{margin:20px 0}.map-excluded{display:flex;gap:8px;flex-wrap:wrap}.map-excluded button{font-size:12px;padding:6px 12px}.distance-bars-title{margin-top:25px}.distance-summary{margin-bottom:15px}
+@media(max-width:700px){.distance-layout{grid-template-columns:1fr}.distance-number{font-size:34px}.distance-row{grid-template-columns:58px minmax(0,1fr) 65px;gap:7px}.map-point text{font-size:30px}.map-point circle{r:16px}.map-point.selected-a circle,.map-point.selected-b circle{r:21px}.map-axis-label{font-size:24px}.distance-controls>label{flex-basis:100%}}
 </style>
 </head>
-<body><main class="wrap"><div class="line"></div><div class="eyebrow">IA aplicada à produtividade · Semana 1 · Aula 2 · Parte 1</div><h1>Bag of Words: texto como contagem</h1><p>Antes dos embeddings, o jeito clássico de transformar texto em números era <strong>contar palavras</strong>. Cada palavra do vocabulário vira uma coluna; cada documento vira uma linha. Compare como a contagem, a presença binária e o TF-IDF representam os mesmos documentos.</p>
-<section class="card"><div class="section-head"><span class="num">1</span><h2>Documentos e vocabulário</h2></div><div class="muted">Um documento por linha. O texto é normalizado (minúsculas e sem pontuação); cada palavra distinta ganha um índice.</div><div class="columns"><div class="panel"><div class="label">Documentos (um por linha)</div><textarea id="docs" spellcheck="false" aria-label="Documentos"></textarea><div class="actions"><button id="vectorize" class="primary">Vetorizar</button><button id="reset">Voltar ao exemplo</button></div><div id="error" class="err" role="alert"></div></div><div class="panel"><div class="label">Vocabulário (índice → palavra)</div><div id="tokens" class="tokens"></div></div></div></section>
-<section class="card"><div class="section-head"><span class="num pink">2</span><h2>Matriz documento-termo</h2></div><div class="muted">Cada linha é o vetor de um documento. Selecione o peso para comparar os resultados.</div><div class="modes"><button class="mode active" data-mode="count">Contagem</button><button class="mode" data-mode="binary">Binário</button><button class="mode" data-mode="tfidf">TF-IDF</button></div><div class="scroll"><table class="matrix" id="matrix" aria-label="Matriz documento-termo"></table></div><div class="stats" id="stats"></div><div id="modeInfo" class="footer"></div></section>
-<section class="card"><div class="section-head"><span class="num">3</span><h2>O que o algoritmo não entende?</h2></div><p>Experimente as duas frases <em>“O cão mordeu o homem”</em> e <em>“O homem mordeu o cão”</em>. Elas produzem a mesma representação nos três modos: nenhuma dessas técnicas considera a ordem das palavras. E “gato” e “felino” são termos diferentes, mesmo sendo semanticamente próximos.</p></section>
-</main><script>
+<body>
+<main class="wrap">
+  <div class="line"></div>
+  <div class="eyebrow">IA aplicada à produtividade · SENAI · Laboratório de NLP</div>
+  <h1>Bag of Words: do texto aos vetores</h1>
+  <p>Explore como um computador representa texto: acompanhe os tokens, conte termos, experimente N-gramas e compare documentos. Uma ponte entre o Bag of Words e os próximos conceitos da aula: BPE e embeddings.</p>
+
+  <section class="card" aria-labelledby="documentsTitle">
+    <div class="section-head"><span class="num">1</span><h2 id="documentsTitle">Documentos e vocabulário</h2></div>
+    <p class="muted">Um documento por linha. Edite os textos para atualizar todas as visualizações automaticamente.</p>
+    <div class="columns">
+      <div class="panel">
+        <label class="label" for="docs">Documentos (um por linha)</label>
+        <textarea id="docs" spellcheck="false" aria-describedby="inputHelp error"></textarea>
+        <div class="actions"><button id="vectorize" class="primary">Vetorizar agora</button><button id="reset">Voltar ao exemplo</button></div>
+        <p id="inputHelp" class="footer">Até 200 documentos, 2.000 termos únicos e 100.000 caracteres. Linhas em branco são ignoradas.</p>
+        <div id="error" class="err" role="alert"></div>
+      </div>
+      <div class="panel">
+        <div class="label">Vocabulário (índice → termo)</div>
+        <div id="tokens" class="tokens"></div>
+        <p id="vocabInfo" class="footer"></p>
+      </div>
+    </div>
+    <fieldset class="settings">
+      <legend>Experimente a representação</legend>
+      <div class="controls">
+        <label class="check"><input type="checkbox" id="stopwords" aria-describedby="stopwordHelp"> Remover stopwords em português</label>
+        <label for="ngramSize">Tamanho dos termos
+          <select id="ngramSize"><option value="1">1 · Unigramas</option><option value="2">2 · Bigramas</option><option value="3">3 · Trigramas</option></select>
+        </label>
+      </div>
+      <p id="stopwordHelp" class="footer">A remoção é opcional e ocorre antes dos N-gramas. A lista didática preserva “não”, pois a negação pode mudar o sentido.</p>
+      <details><summary>Ver a lista de stopwords</summary><p id="stopwordList" class="footer"></p></details>
+      <div class="label weight-label">Peso dos vetores · matriz, tokenização e similaridade</div>
+      <div class="modes" role="group" aria-label="Peso dos vetores"><button class="mode active" data-mode="count" aria-pressed="true">Contagem</button><button class="mode" data-mode="binary" aria-pressed="false">Binário</button><button class="mode" data-mode="tfidf" aria-pressed="false">TF-IDF</button></div>
+    </fieldset>
+    <p id="pipelineStatus" class="footer" role="status" aria-live="polite"></p>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="Explorações do laboratório">
+    <button class="tab active" id="tab-main" role="tab" aria-selected="true" aria-controls="panel-main" data-tab="main" tabindex="0">Matriz e similaridade</button>
+    <button class="tab" id="tab-distances" role="tab" aria-selected="false" aria-controls="panel-distances" data-tab="distances" tabindex="-1">Distâncias</button>
+    <button class="tab" id="tab-tokens" role="tab" aria-selected="false" aria-controls="panel-tokens" data-tab="tokens" tabindex="-1">Tokens</button>
+    <button class="tab" id="tab-frequency" role="tab" aria-selected="false" aria-controls="panel-frequency" data-tab="frequency" tabindex="-1">Frequência</button>
+    <button class="tab" id="tab-ngrams" role="tab" aria-selected="false" aria-controls="panel-ngrams" data-tab="ngrams" tabindex="-1">N-gramas</button>
+  </nav>
+  <div id="analysisViews">
+    <p id="emptyNotice" class="notice" role="status" hidden></p>
+    <div id="panel-main" role="tabpanel" aria-labelledby="tab-main" tabindex="0">
+      <section class="card" aria-labelledby="matrixTitle">
+        <div class="section-head"><span class="num pink">2</span><h2 id="matrixTitle">Matriz documento-termo</h2></div>
+        <p class="muted">Cada linha é um documento; cada coluna, um termo do vocabulário compartilhado.</p>
+        <div class="scroll"><table class="matrix" id="matrix" aria-label="Matriz documento-termo"></table></div>
+        <p id="matrixPreview" class="footer"></p>
+        <div class="stats" id="stats"></div>
+        <p id="modeInfo" class="footer"></p>
+      </section>
+      <section class="card" aria-labelledby="similarityTitle">
+        <div class="section-head"><span class="num purple">3</span><h2 id="similarityTitle">Similaridade entre documentos</h2></div>
+        <p class="muted">O cosseno compara as direções dos vetores: 1 indica a mesma direção; 0, nenhum termo compartilhado. Isso mede a representação lexical, não a compreensão do significado.</p>
+        <div id="similarityWarning" class="footer" role="status"></div>
+        <div class="scroll"><table class="matrix similarity" id="similarity" role="grid" aria-label="Similaridade de cosseno entre documentos" aria-describedby="similarityHelp"></table></div>
+        <p class="footer" id="similarityHelp">Escolha qualquer par abaixo ou clique em uma célula. Na matriz, use as setas para navegar e Enter ou espaço para selecionar; Tab segue para o próximo controle.</p>
+        <div class="controls pair-controls"><label for="compareA">Documento A<select id="compareA"></select></label><label for="compareB">Documento B<select id="compareB"></select></label></div>
+        <div class="comparison-grid">
+          <div class="panel direction-panel">
+            <svg id="angleDiagram" viewBox="0 0 360 240" role="img" aria-labelledby="angleTitle angleDesc">
+              <title id="angleTitle">Ângulo entre as direções dos vetores</title><desc id="angleDesc"></desc>
+              <defs><marker id="arrowA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ff9aca"/></marker><marker id="arrowB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#aaa1ff"/></marker></defs>
+              <path d="M 50 15 V 205 H 340" fill="none" stroke="#55476f" stroke-width="1"/>
+              <path id="angleArc" fill="none" stroke="#ffb45e" stroke-width="2"/>
+              <line id="arrowLineA" x1="50" y1="205" x2="290" y2="205" stroke="#ff9aca" stroke-width="4" marker-end="url(#arrowA)"/>
+              <line id="arrowLineB" x1="50" y1="205" x2="290" y2="205" stroke="#aaa1ff" stroke-width="3" marker-end="url(#arrowB)"/>
+              <text id="angleLabel" x="115" y="170" fill="#ffcf92" font-size="15"></text>
+              <text x="245" y="231" fill="#ff9aca" font-size="13">A (rosa)</text><text x="55" y="25" fill="#aaa1ff" font-size="13">B (lilás)</text>
+            </svg>
+            <p class="footer">Esquema 2D ilustrativo das direções normalizadas, com o ângulo real. Não é uma projeção dos termos nem um embedding.</p>
+          </div>
+          <div class="panel">
+            <div class="metrics"><div><span class="label">Similaridade</span><strong id="cosineValue">—</strong></div><div><span class="label">Ângulo</span><strong id="angleValue">—</strong></div></div>
+            <p id="comparisonMath" class="math"></p>
+            <p id="comparisonInfo" class="footer"></p>
+          </div>
+        </div>
+        <details class="vector-details"><summary>Ver os dois vetores e suas dimensões</summary><p id="vectorKeys" class="vector-text"></p><p id="vectorA" class="vector-text"></p><p id="vectorB" class="vector-text"></p></details>
+        <div class="explain-grid" id="exampleNotes">
+          <div class="explain"><div class="label">Doc 1 × Doc 2 e Doc 1 × Doc 3</div><strong id="similarities123">—</strong><p>“Gato”, “felino” e “servidor” são termos diferentes. Nos textos do exemplo, os termos compartilhados produzem a mesma pontuação nos dois pares. BoW não reconhece sinônimos.</p></div>
+          <div class="explain"><div class="label">Doc 4 × Doc 5</div><strong id="similarity45">—</strong><p id="orderExplanation"></p></div>
+        </div>
+        <p class="footer" id="similarityInfo"></p>
+      </section>
+    </div>
+    <section class="card" id="panel-distances" role="tabpanel" aria-labelledby="tab-distances" tabindex="0" hidden>
+      <h2>Mapa de distâncias entre documentos</h2>
+      <p>Compare a posição dos documentos e veja como ela muda com os textos, os pesos, as stopwords e os N-gramas. Cada ponto representa um documento ou um grupo de documentos sobrepostos. Documentos com a mesma direção aparecem juntos.</p>
+      <div class="controls distance-controls"><label for="distanceA">Documento A · referência<select id="distanceA"></select></label><label for="distanceB">Documento B · comparação<select id="distanceB"></select></label></div>
+      <div class="distance-layout">
+        <div>
+          <div class="map-surface"><svg id="distanceMap" viewBox="0 0 760 440" role="group" aria-labelledby="distanceMapTitle distanceMapDesc"><title id="distanceMapTitle">Mapa 2D dos documentos</title><desc id="distanceMapDesc">Projeção aproximada das direções dos vetores. Clique em um ponto ou use Enter para escolher o documento B.</desc><g id="distanceMapDrawing"></g></svg></div>
+          <div class="map-legend"><span class="legend-a">Documento A</span><span class="legend-b">Documento B</span><span class="legend-both">A e B juntos</span><span>Outros documentos</span></div>
+          <p id="mapQuality" class="footer"></p>
+          <p class="footer">Clique em um ponto para escolher B, ou use Tab e Enter/espaço. Em um ponto com vários documentos, clique novamente para alternar entre eles.</p>
+          <div id="mapExcluded" class="map-excluded"></div>
+        </div>
+        <div class="panel">
+          <div class="label">Distância de cosseno · valor exato</div>
+          <strong id="mapDistanceValue" class="distance-number">—</strong>
+          <p id="mapPairInfo" class="distance-summary"></p>
+          <div id="distanceScale" class="distance-scale" aria-hidden="true"></div><div class="scale-labels"><span>0 · mesma direção</span><span>1 · sem termos em comum</span></div>
+          <p class="math">distância = 1 − similaridade</p>
+          <p id="distanceFormula" class="math"></p>
+          <p id="mapSelectionInfo" class="footer" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+      <h3 class="distance-bars-title">Distâncias a partir do documento A</h3>
+      <p id="distanceBarsInfo" class="footer"></p><div id="distanceBars"></div>
+      <p class="notice">O mapa usa uma projeção PCA em 2D dos vetores normalizados e pode distorcer as posições relativas. Os eixos são componentes da projeção, não palavras. As barras e os valores usam a distância de cosseno nos vetores completos, em escala fixa de 0 a 1. Vetores vazios não têm direção e ficam fora do mapa.</p>
+    </section>
+    <section class="card" id="panel-tokens" role="tabpanel" aria-labelledby="tab-tokens" tabindex="0" hidden>
+      <h2>Tokenização passo a passo</h2><p>Veja o caminho entre uma frase e seu vetor. Os índices começam em zero no vocabulário; a numeração dos tokens começa em um para facilitar a leitura.</p>
+      <label for="tokenDoc" class="document-control">Documento da exploração<select id="tokenDoc"></select></label>
+      <div class="steps">
+        <article class="step"><h3><span>1</span> Texto original</h3><p id="tokenOriginal" class="sample-text"></p></article>
+        <article class="step"><h3><span>2</span> Normalização</h3><p id="tokenNormalized" class="sample-text"></p><p class="footer">Unicode normalizado, letras minúsculas e pontuação como separador. Acentos e números são preservados.</p></article>
+        <article class="step"><h3><span>3</span> Separação em tokens</h3><div id="tokenRaw" class="token-flow"></div></article>
+        <article class="step"><h3><span>4</span> Filtro de stopwords</h3><p id="filterExplanation" class="footer"></p><div id="tokenFiltered" class="token-flow"></div></article>
+        <article class="step"><h3><span>5</span> Formação dos termos</h3><p id="termExplanation" class="footer"></p><div id="tokenTerms" class="token-flow"></div></article>
+        <article class="step"><h3><span>6</span> Vetor numérico</h3><p id="tokenVectorKeys" class="vector-text"></p><p id="tokenVector" class="vector-text"></p><p id="tokenVectorInfo" class="footer"></p></article>
+      </div>
+    </section>
+    <section class="card" id="panel-frequency" role="tabpanel" aria-labelledby="tab-frequency" tabindex="0" hidden>
+      <h2>Frequência dos termos</h2><p>Compare os termos mais usados com os de maior peso TF-IDF. O gráfico tem uma escala própria para cada seleção; compare os valores exibidos nas barras.</p>
+      <div class="controls"><label for="freqDoc">Conjunto analisado<select id="freqDoc"></select></label><label for="freqMode">Medida do gráfico<select id="freqMode"><option value="count">Contagem simples</option><option value="tfidf">Pesos TF-IDF</option></select></label></div>
+      <p id="frequencyInfo" class="footer"></p><div id="frequencyChart" class="bar-chart" role="img" aria-label="Gráfico de frequência dos termos"></div>
+      <p class="footer">TF-IDF = frequência bruta × [ln((1 + documentos)/(1 + documentos com o termo)) + 1]. No conjunto, somamos os pesos dos documentos. Mesmo ao selecionar um documento, o IDF usa o conjunto inteiro.</p>
+    </section>
+    <section class="card" id="panel-ngrams" role="tabpanel" aria-labelledby="tab-ngrams" tabindex="0" hidden>
+      <h2>N-gramas: um pouco da ordem</h2><p>Um unigrama tem um token; um bigrama, dois tokens consecutivos; um trigrama, três. O seletor “Tamanho dos termos” atualiza todas as abas.</p>
+      <div class="ngram-examples"><div class="panel"><div class="label">Unigramas</div><code>o · gato · dormiu</code></div><div class="panel"><div class="label">Bigramas</div><code>o gato · gato dormiu</code></div><div class="panel"><div class="label">Trigramas</div><code>o gato dormiu</code></div></div>
+      <label for="ngramDoc" class="document-control">Documento da exploração<select id="ngramDoc"></select></label>
+      <p id="ngramOriginal" class="sample-text"></p><p id="ngramInfo" class="footer"></p><div id="ngramTerms" class="token-flow"></div>
+      <p class="notice">A remoção de stopwords ocorre antes dos N-gramas e pode aproximar palavras que estavam separadas. As janelas percorrem os tokens de cada documento, inclusive entre frases após remover a pontuação, mas nunca atravessam documentos.</p>
+      <p class="footer">Experimente os documentos 4 e 5 do exemplo com bigramas e observe a similaridade. N-gramas preservam apenas a ordem local e ainda não compreendem o sentido das frases.</p>
+    </section>
+  </div>
+  <p class="page-footer">Laboratório no navegador · HTML, CSS e JavaScript · Textos processados localmente</p>
+</main>
+<script id="nlp-core">
 'use strict';
-const example=['O gato dormiu no sofá da sala.','O felino dormiu no sofá da sala.','O servidor dormiu no sofá da sala.','O cão mordeu o homem.','O homem mordeu o cão.'].join('\n');
-const $=id=>document.getElementById(id);
-let data=null, mode='count';
-function tokenize(text){return (text.toLocaleLowerCase('pt-BR').match(/[\p{L}\p{N}]+/gu)||[]);}
-function build(){const docs=$('docs').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(!docs.length){$('error').textContent='Digite ao menos um documento.';return;}if(docs.length>200){$('error').textContent='Limite: 200 documentos por execução.';return;}const lines=docs.map(tokenize), vocab=[...new Set(lines.flat())].sort((a,b)=>a.localeCompare(b,'pt-BR'));if(vocab.length>2000){$('error').textContent='Limite: 2.000 palavras únicas.';return;}$('error').textContent='';const index=new Map(vocab.map((word,i)=>[word,i]));const counts=lines.map(line=>{const row=new Array(vocab.length).fill(0);for(const w of line)row[index.get(w)]++;return row;});const df=vocab.map((_,j)=>counts.reduce((sum,row)=>sum+(row[j]>0?1:0),0));data={docs,vocab,counts,df};render();}
-function el(tag,content,klass){const node=document.createElement(tag);if(content!==undefined)node.textContent=content;if(klass)node.className=klass;return node;}
-function render(){const {docs,vocab,counts,df}=data;const tok=$('tokens');tok.replaceChildren();vocab.forEach((word,i)=>{const span=el('span',undefined,'token'),b=el('b',i+' ');span.append(b,document.createTextNode(word));tok.append(span);});const table=$('matrix');table.replaceChildren();const head=el('tr');head.append(el('th','Documento'));vocab.forEach(w=>head.append(el('th',w)));table.append(head);let zero=0;counts.forEach((row,i)=>{const tr=el('tr');tr.append(el('td','Doc '+(i+1)));row.forEach((v,j)=>{if(!v)zero++;const value=mode==='binary'?(v>0?1:0):mode==='tfidf'?(v*(Math.log((docs.length+1)/(df[j]+1))+1)):v;const td=el('td',mode==='tfidf'?value.toFixed(2):String(value),v?'nonzero':'zero');tr.append(td);});table.append(tr);});const total=docs.length*vocab.length;const stats=$('stats');stats.replaceChildren();[['Documentos',docs.length],['Palavras únicas',vocab.length],['Células',total],['Zeros',total?(100*zero/total).toFixed(2)+'%':'—']].forEach(([k,v])=>{const box=el('div',undefined,'stat');box.append(document.createTextNode(k+': '),el('strong',String(v)));stats.append(box);});$('modeInfo').textContent={count:'Contagem: cada célula indica quantas vezes a palavra aparece no documento.',binary:'Binário: 1 significa presença da palavra e 0, ausência.',tfidf:'TF-IDF: frequência bruta × IDF suavizado, onde IDF = ln((1 + número de documentos)/(1 + documentos contendo o termo)) + 1. Valores arredondados para duas casas.'}[mode];}
-$('vectorize').addEventListener('click',build);$('reset').addEventListener('click',()=>{$('docs').value=example;mode='count';syncButtons();build();});function syncButtons(){document.querySelectorAll('.mode').forEach(b=>{b.classList.toggle('active',b.dataset.mode===mode);b.setAttribute('aria-pressed',String(b.dataset.mode===mode));});}document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.mode;syncButtons();if(data)render();}));$('docs').value=example;syncButtons();build();
-</script></body></html>
+const NLP = (() => {
+  // Lista didática e deliberadamente pequena; preserva negações como “não”.
+  const stopwords = new Set('a ao aos as com da das de do dos e em entre essa esse esta este isso isto na nas no nos o os ou para pela pelas pelo pelos por que se um uma umas uns à às'.split(' '));
+  const tokenize = text => text.normalize('NFC').toLocaleLowerCase('pt-BR').match(/[\p{L}\p{N}]+/gu) || [];
+  function ngrams(tokens, size) {
+    return Array.from({ length: Math.max(0, tokens.length - size + 1) }, (_, i) => tokens.slice(i, i + size).join(' '));
+  }
+  function analyzeDocuments(docs, { removeStopwords = false, ngramSize = 1 } = {}) {
+    if (!docs.length) throw new Error('Digite ao menos um documento.');
+    if (docs.length > 200) throw new Error('Limite: 200 documentos por execução.');
+    if (docs.reduce((sum, text) => sum + text.length, 0) > 100000) throw new Error('Limite: 100.000 caracteres por execução.');
+    if (![1, 2, 3].includes(ngramSize)) throw new Error('Escolha N-gramas de tamanho 1, 2 ou 3.');
+    const rawTokens = docs.map(tokenize);
+    const filteredTokens = rawTokens.map(tokens => tokens.filter(token => !removeStopwords || !stopwords.has(token)));
+    const terms = filteredTokens.map(tokens => ngrams(tokens, ngramSize));
+    const vocab = [...new Set(terms.flat())].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    if (vocab.length > 2000) throw new Error('Limite: 2.000 termos únicos. Reduza os documentos ou altere o tamanho dos N-gramas.');
+    const index = new Map(vocab.map((term, i) => [term, i]));
+    const counts = terms.map(tokens => {
+      const row = new Array(vocab.length).fill(0);
+      tokens.forEach(token => row[index.get(token)]++);
+      return row;
+    });
+    const df = vocab.map((_, j) => counts.reduce((sum, row) => sum + (row[j] > 0 ? 1 : 0), 0));
+    return { docs, rawTokens, filteredTokens, terms, vocab, counts, df, removeStopwords, ngramSize };
+  }
+  function weightedRows(data, mode = 'count') {
+    return data.counts.map(row => row.map((value, j) => mode === 'binary' ? Number(value > 0)
+      : mode === 'tfidf' ? value * (Math.log((data.docs.length + 1) / (data.df[j] + 1)) + 1) : value));
+  }
+  function cosineDetails(a, b) {
+    let dot = 0, aa = 0, bb = 0;
+    for (let i = 0; i < a.length; i++) { dot += a[i] * b[i]; aa += a[i] ** 2; bb += b[i] ** 2; }
+    const normA = Math.sqrt(aa), normB = Math.sqrt(bb);
+    const similarity = aa && bb ? Math.max(0, Math.min(1, dot / (normA * normB))) : 0;
+    return { dot, normA, normB, similarity, distance: aa && bb ? 1 - similarity : null, angle: aa && bb ? Math.acos(similarity) * 180 / Math.PI : null };
+  }
+  function projectDocuments(rows) {
+    // PCA dos vetores unitários via matriz de Gram centrada. As distâncias
+    // euclidianas nesse espaço são sqrt(2 * distância de cosseno).
+    const valid = [], excluded = [];
+    rows.forEach((row, index) => {
+      const norm = Math.hypot(...row);
+      if (norm) valid.push({ index, row: row.map(value => value / norm) });
+      else excluded.push(index);
+    });
+    const n = valid.length;
+    if (!n) return { points: [], excluded, explained: 1, totalVariance: 0 };
+    const gram = valid.map(a => valid.map(b => a.row.reduce((sum, value, k) => sum + value * b.row[k], 0)));
+    const means = gram.map(row => row.reduce((sum, value) => sum + value, 0) / n);
+    const mean = means.reduce((sum, value) => sum + value, 0) / n;
+    const centered = gram.map((row, i) => row.map((value, j) => value - means[i] - means[j] + mean));
+    const totalVariance = Math.max(0, centered.reduce((sum, row, i) => sum + row[i], 0));
+    const components = [];
+    if (totalVariance > 1e-12) {
+      for (let axis = 0; axis < 2; axis++) {
+        let direction = valid.map((_, i) => Math.sin((i + 1) * 1.618 + axis) + Math.cos((i + 1) * 0.73 + axis));
+        for (let iteration = 0; iteration < 160; iteration++) {
+          const next = centered.map(row => row.reduce((sum, value, j) => sum + value * direction[j], 0));
+          for (const previous of components) {
+            const overlap = next.reduce((sum, value, i) => sum + value * previous.direction[i], 0);
+            next.forEach((_, i) => next[i] -= overlap * previous.direction[i]);
+          }
+          const norm = Math.hypot(...next);
+          if (norm < 1e-12) { direction = new Array(n).fill(0); break; }
+          const unit = next.map(value => value / norm);
+          const change = Math.hypot(...unit.map((value, i) => value - direction[i]));
+          direction = unit;
+          if (change < 1e-12) break;
+        }
+        const eigenvalue = Math.max(0, direction.reduce((sum, value, i) => sum + value * centered[i].reduce((dot, entry, j) => dot + entry * direction[j], 0), 0));
+        components.push({ direction, eigenvalue });
+      }
+    }
+    return {
+      points: valid.map((item, i) => ({ index: item.index, x: (components[0]?.direction[i] || 0) * Math.sqrt(components[0]?.eigenvalue || 0), y: (components[1]?.direction[i] || 0) * Math.sqrt(components[1]?.eigenvalue || 0) })),
+      excluded, totalVariance,
+      explained: totalVariance > 1e-12 ? Math.min(1, components.reduce((sum, component) => sum + component.eigenvalue, 0) / totalVariance) : 1
+    };
+  }
+  function frequencyRows(data, mode = 'count', docIndex = -1) {
+    const rows = weightedRows(data, mode);
+    return data.vocab.map((term, j) => ({ term, value: docIndex < 0 ? rows.reduce((sum, row) => sum + row[j], 0) : rows[docIndex][j] }))
+      .filter(item => item.value > 0).sort((a, b) => b.value - a.value || a.term.localeCompare(b.term, 'pt-BR'));
+  }
+  return Object.freeze({ tokenize, ngrams, analyzeDocuments, weightedRows, cosineDetails, projectDocuments, frequencyRows, isStopword: token => stopwords.has(token), stopwordList: [...stopwords] });
+})();
+</script>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const exampleDocs = ['O gato dormiu no sofá da sala.', 'O felino dormiu no sofá da sala.', 'O servidor dormiu no sofá da sala.', 'O cão mordeu o homem.', 'O homem mordeu o cão.', 'Carro.'];
+const modeNames = { count: 'Contagem', binary: 'Binário', tfidf: 'TF-IDF' };
+let data = null, mode = 'count', vectors = [], similarities = [], projection = null, buildTimer;
+const format = (value, places = 2) => value.toLocaleString('pt-BR', { minimumFractionDigits: places, maximumFractionDigits: places });
+function el(tag, text, klass) {
+  const node = document.createElement(tag);
+  if (text !== undefined) node.textContent = text;
+  if (klass) node.className = klass;
+  return node;
+}
+function build() {
+  clearTimeout(buildTimer);
+  try {
+    const docs = $('docs').value.split(/\r?\n/).map(text => text.trim()).filter(Boolean);
+    data = NLP.analyzeDocuments(docs, { removeStopwords: $('stopwords').checked, ngramSize: Number($('ngramSize').value) });
+    $('error').textContent = '';
+    $('analysisViews').hidden = false;
+    render();
+  } catch (error) {
+    data = null;
+    vectors = [];
+    similarities = [];
+    projection = null;
+    $('error').textContent = error.message;
+    $('analysisViews').hidden = true;
+    $('tokens').replaceChildren();
+    $('vocabInfo').textContent = 'Nenhum resultado válido para a entrada atual.';
+    $('pipelineStatus').textContent = 'Ajuste os documentos ou as opções para continuar.';
+  }
+}
+function fillDocSelect(id, fallback = 0, includeAll = false) {
+  const select = $(id), previous = select.value;
+  select.replaceChildren();
+  if (includeAll) select.append(el('option', 'Todos os documentos'));
+  if (includeAll) select.options[0].value = '-1';
+  data.docs.forEach((doc, i) => {
+    const option = el('option', 'Doc ' + (i + 1) + ' · ' + doc.slice(0, 55) + (doc.length > 55 ? '…' : ''));
+    option.value = String(i);
+    select.append(option);
+  });
+  const candidate = Number(previous);
+  select.value = String(previous !== '' && candidate >= (includeAll ? -1 : 0) && candidate < data.docs.length ? candidate : Math.min(fallback, data.docs.length - 1));
+}
+function render() {
+  vectors = NLP.weightedRows(data, mode);
+  projection = NLP.projectDocuments(vectors);
+  // Limita apenas a prévia da matriz; o par selecionado usa os vetores completos.
+  const preview = vectors.slice(0, 30);
+  similarities = preview.map(a => preview.map(b => NLP.cosineDetails(a, b).similarity));
+  fillDocSelect('tokenDoc'); fillDocSelect('ngramDoc'); fillDocSelect('freqDoc', -1, true);
+  fillDocSelect('compareA'); fillDocSelect('compareB', 1);
+  fillDocSelect('distanceA'); fillDocSelect('distanceB', 1);
+  renderVocabulary(); renderMatrix(); renderSimilarity(); renderTokens(); renderFrequency(); renderNgrams();
+  const before = data.rawTokens.reduce((sum, row) => sum + row.length, 0);
+  const after = data.filteredTokens.reduce((sum, row) => sum + row.length, 0);
+  $('pipelineStatus').textContent = `${data.docs.length} documento(s) · ${before} tokens → ${after} após o filtro · ${data.vocab.length} termos únicos · N = ${data.ngramSize} · ${modeNames[mode]}`;
+  $('emptyNotice').hidden = data.vocab.length > 0;
+  $('emptyNotice').textContent = 'Nenhum termo foi produzido. O texto pode conter apenas pontuação ou stopwords, ou ter menos tokens que o tamanho do N-grama. Experimente desativar o filtro ou reduzir N.';
+}
+function renderVocabulary() {
+  const container = $('tokens');
+  container.replaceChildren();
+  data.vocab.slice(0, 100).forEach((word, i) => {
+    const chip = el('span', undefined, 'token');
+    chip.append(el('b', i + ' '), document.createTextNode(word));
+    container.append(chip);
+  });
+  $('vocabInfo').textContent = data.vocab.length > 100 ? `Prévia: primeiros 100 de ${data.vocab.length} termos. Os cálculos usam o vocabulário inteiro.` : `${data.vocab.length} termos em ordem alfabética. O índice determina a posição no vetor.`;
+}
+function renderMatrix() {
+  const table = $('matrix'), head = el('tr');
+  table.replaceChildren();
+  const corner = el('th', 'Documento'); corner.scope = 'col'; head.append(corner);
+  data.vocab.slice(0, 60).forEach(term => { const th = el('th', term); th.scope = 'col'; head.append(th); });
+  table.append(head);
+  vectors.slice(0, 30).forEach((row, i) => {
+    const tr = el('tr'), label = el('th', 'Doc ' + (i + 1)); label.scope = 'row'; tr.append(label);
+    row.slice(0, 60).forEach(value => tr.append(el('td', mode === 'tfidf' ? format(value) : String(value), value ? 'nonzero' : 'zero')));
+    table.append(tr);
+  });
+  $('matrixPreview').textContent = data.docs.length > 30 || data.vocab.length > 60 ? `Prévia: até 30 documentos × 60 termos de ${data.docs.length} × ${data.vocab.length}. Os cálculos e os vetores individuais usam todas as dimensões.` : '';
+  const total = data.docs.length * data.vocab.length;
+  const zeros = data.counts.reduce((sum, row) => sum + row.filter(value => value === 0).length, 0);
+  $('stats').replaceChildren();
+  [['Documentos', data.docs.length], ['Termos únicos', data.vocab.length], ['Células', total], ['Zeros', total ? format(100 * zeros / total) + '%' : '—']].forEach(([label, value]) => {
+    const box = el('div', undefined, 'stat'); box.append(document.createTextNode(label + ': '), el('strong', String(value))); $('stats').append(box);
+  });
+  $('modeInfo').textContent = {
+    count: 'Contagem: cada célula indica quantas vezes o termo aparece no documento.',
+    binary: 'Binário: 1 significa presença do termo e 0, ausência; repetições não aumentam o peso.',
+    tfidf: 'TF-IDF: frequência bruta × IDF suavizado. IDF = ln((1 + número de documentos)/(1 + documentos contendo o termo)) + 1. Exibição arredondada; os cálculos usam a precisão completa.'
+  }[mode];
+}
+function renderSimilarity() {
+  const table = $('similarity'), head = el('tr');
+  table.replaceChildren(); head.append(el('th', 'A × B'));
+  similarities.forEach((_, i) => { const th = el('th', 'Doc ' + (i + 1)); th.scope = 'col'; head.append(th); });
+  table.append(head);
+  similarities.forEach((row, i) => {
+    const tr = el('tr'), label = el('th', 'Doc ' + (i + 1)); label.scope = 'row'; tr.append(label);
+    row.forEach((value, j) => {
+      const cell = el('td', undefined, 'sim-cell ' + (value > 0.9 ? 'sim-high' : value > 0.3 ? 'sim-mid' : 'sim-low'));
+      const button = el('button', format(value)); button.type = 'button'; button.dataset.a = i; button.dataset.b = j;
+      button.setAttribute('aria-label', `Comparar Doc ${i + 1} e Doc ${j + 1}: ${format(value)}`);
+      button.addEventListener('click', () => { $('compareA').value = String(i); $('compareB').value = String(j); renderComparison(); });
+      cell.append(button); tr.append(cell);
+    });
+    table.append(tr);
+  });
+  $('similarityWarning').textContent = data.docs.length > 30 ? 'Prévia dos primeiros 30 documentos. Os seletores abaixo permitem comparar qualquer um dos documentos.' : '';
+  const isExample = data.docs.length === exampleDocs.length && data.docs.every((doc, i) => doc === exampleDocs[i]);
+  $('exampleNotes').hidden = !isExample;
+  if (isExample) {
+    $('similarities123').textContent = format(similarities[0][1]) + ' e ' + format(similarities[0][2]);
+    $('similarity45').textContent = format(similarities[3][4]);
+    $('orderExplanation').textContent = data.ngramSize === 1 ? '“O cão mordeu o homem” e “O homem mordeu o cão” viram o mesmo vetor. A ordem muda o sentido, mas unigramas ignoram essa ordem.' : `Com N = ${data.ngramSize}, as duas frases formam termos diferentes. A similaridade evidencia parte da ordem local, mesmo sem compreender quem mordeu quem.`;
+  }
+  $('similarityInfo').textContent = `Similaridade calculada com ${modeNames[mode]}, N = ${data.ngramSize}. Um vetor sem termos tem similaridade zero por convenção, inclusive consigo mesmo; seu ângulo é indefinido.`;
+  renderComparison();
+}
+function vectorString(values) { return '[' + values.map(value => mode === 'tfidf' ? format(value) : String(value)).join('; ') + ']'; }
+function dimensionKeys() { return data.vocab.length ? data.vocab.map((term, i) => i + ': ' + term).join(' · ') : '(vocabulário vazio)'; }
+function renderComparison() {
+  const i = Number($('compareA').value), j = Number($('compareB').value);
+  const details = NLP.cosineDetails(vectors[i], vectors[j]);
+  $('cosineValue').textContent = format(details.similarity);
+  $('angleValue').textContent = details.angle === null ? 'Indefinido' : format(details.angle) + '°';
+  $('comparisonMath').textContent = `A · B = Σ(aᵢ × bᵢ) = ${format(details.dot)}\n‖A‖ = √Σaᵢ² = ${format(details.normA)}\n‖B‖ = √Σbᵢ² = ${format(details.normB)}\n` + (details.angle === null ? 'Uma norma é zero: cosseno = 0 por convenção.\nO ângulo não está definido.' : `cos(θ) = (A · B) / (‖A‖ × ‖B‖)\n= ${format(details.dot)} / (${format(details.normA)} × ${format(details.normB)}) ≈ ${format(details.similarity)}\nθ = arccos(cos(θ)) ≈ ${format(details.angle)}°`);
+  $('comparisonInfo').textContent = `Doc ${i + 1} × Doc ${j + 1} · ${data.vocab.length} dimensões · ${modeNames[mode]}. Valores exibidos arredondados; cálculo com precisão completa.`;
+  $('vectorKeys').textContent = 'Dimensões: ' + dimensionKeys();
+  $('vectorA').textContent = 'A · Doc ' + (i + 1) + ' = ' + vectorString(vectors[i]);
+  $('vectorB').textContent = 'B · Doc ' + (j + 1) + ' = ' + vectorString(vectors[j]);
+  const buttons = [...document.querySelectorAll('.sim-cell button')];
+  const entry = buttons.find(button => Number(button.dataset.a) === i && Number(button.dataset.b) === j) || buttons[0];
+  buttons.forEach(button => {
+    button.setAttribute('aria-pressed', String(Number(button.dataset.a) === i && Number(button.dataset.b) === j));
+    button.tabIndex = button === entry ? 0 : -1;
+  });
+  drawAngle(details);
+  $('distanceA').value = String(i); $('distanceB').value = String(j);
+  renderDistances(i, j, details);
+}
+function svgEl(tag, attrs = {}, text) {
+  const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+function chooseMapDocument(index) {
+  $('compareB').value = String(index); renderComparison();
+}
+function renderDistances(a, b, details) {
+  const distance = details.distance;
+  $('mapDistanceValue').textContent = distance === null ? 'Indefinida' : format(distance);
+  $('mapPairInfo').textContent = `Doc ${a + 1} × Doc ${b + 1} · ${modeNames[mode]} · N = ${data.ngramSize}. Exibição arredondada; cálculo com precisão completa.`;
+  $('distanceFormula').textContent = distance === null ? 'Um vetor não tem direção.' : `1 − ${format(details.similarity)} = ${format(distance)}`;
+  $('distanceScale').style.setProperty('--distance-position', (100 * (distance ?? 0)) + '%');
+  $('distanceScale').classList.toggle('undefined', distance === null);
+  $('mapSelectionInfo').textContent = distance === null ? 'A distância não é definida quando um dos vetores está vazio.'
+    : distance < 1e-12 ? 'Os documentos selecionados têm a mesma direção e coincidem no mapa.'
+    : 'O segmento destaca o par no mapa. O valor acima usa todas as dimensões, independentemente da projeção.';
+  const drawing = $('distanceMapDrawing'); drawing.replaceChildren();
+  for (let x = 60; x <= 700; x += 80) drawing.append(svgEl('line', { x1: x, y1: 35, x2: x, y2: 395, stroke: '#30294d' }));
+  for (let y = 35; y <= 395; y += 60) drawing.append(svgEl('line', { x1: 60, y1: y, x2: 700, y2: y, stroke: '#30294d' }));
+  drawing.append(svgEl('text', { x: 380, y: 430, class: 'map-axis-label', fill: '#a9a2c6', 'text-anchor': 'middle', 'font-size': 12 }, 'Componente 1'));
+  drawing.append(svgEl('text', { x: 22, y: 220, class: 'map-axis-label', fill: '#a9a2c6', 'font-size': 12, transform: 'rotate(-90 22 220)', 'text-anchor': 'middle' }, 'Componente 2'));
+  const points = projection.points;
+  const minX = Math.min(...points.map(point => point.x), 0), maxX = Math.max(...points.map(point => point.x), 0);
+  const minY = Math.min(...points.map(point => point.y), 0), maxY = Math.max(...points.map(point => point.y), 0);
+  // Mesma escala nos dois eixos: não alonga distâncias para preencher o quadro.
+  const scale = Math.min(600 / Math.max(maxX - minX, 1e-9), 300 / Math.max(maxY - minY, 1e-9));
+  const screen = points.map(point => ({ ...point, sx: 380 + (point.x - (minX + maxX) / 2) * scale, sy: 215 - (point.y - (minY + maxY) / 2) * scale }));
+  const pointA = screen.find(point => point.index === a), pointB = screen.find(point => point.index === b);
+  if (distance !== null && distance > 1e-12 && pointA && pointB && Math.hypot(pointA.x - pointB.x, pointA.y - pointB.y) < 1e-9) {
+    $('mapSelectionInfo').textContent = `Os pontos coincidem nesta projeção 2D, mas a distância real é ${format(distance)}. Reduzir dimensões pode ocultar diferenças; consulte as barras abaixo.`;
+  }
+  if (pointA && pointB) drawing.append(svgEl('line', { x1: pointA.sx, y1: pointA.sy, x2: pointB.sx, y2: pointB.sy, class: 'map-link' }));
+  const groups = [];
+  for (const point of screen) {
+    const group = groups.find(item => Math.hypot(item.x - point.x, item.y - point.y) < 1e-9);
+    if (group) group.indices.push(point.index);
+    else groups.push({ ...point, indices: [point.index] });
+  }
+  groups.forEach(point => {
+    const indices = point.indices, isA = indices.includes(a), isB = indices.includes(b);
+    const label = indices.map(index => 'D' + (index + 1)).join(' / ');
+    const group = svgEl('g', { class: 'map-point' + (isA ? ' selected-a' : '') + (isB ? ' selected-b' : ''), 'data-docs': indices.join(','), role: 'button', tabindex: 0, 'aria-label': indices.map(index => 'Doc ' + (index + 1) + ': ' + data.docs[index].slice(0, 100)).join('; ') + '. Selecionar como documento B.', 'aria-pressed': String(isB) });
+    group.append(svgEl('title', {}, indices.map(index => 'Doc ' + (index + 1) + ': ' + data.docs[index]).join('\n')));
+    group.append(svgEl('circle', { cx: point.sx, cy: point.sy, r: isA || isB ? 12 : 8 }));
+    if (groups.length <= 20 || isA || isB) {
+      const shortLabel = indices.length > 5 ? indices.slice(0, 3).map(index => 'D' + (index + 1)).join(' / ') + ' +' + (indices.length - 3) : label;
+      group.append(svgEl('text', { x: point.sx, y: point.sy - 19, 'text-anchor': 'middle' }, shortLabel));
+    }
+    const select = () => {
+      chooseMapDocument(indices[(indices.indexOf(b) + 1) % indices.length]);
+      // A atualização redesenha os pontos; restaura o foco para uso contínuo do teclado.
+      $('distanceMap').querySelector(`[data-docs="${indices.join(',')}"]`)?.focus({ preventScroll: true });
+    };
+    group.addEventListener('click', select);
+    group.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); select(); } });
+    drawing.append(group);
+  });
+  if (!points.length) drawing.append(svgEl('text', { x: 380, y: 215, fill: '#d2c9ed', 'text-anchor': 'middle', 'font-size': 16 }, 'Nenhum vetor com direção para representar.'));
+  $('mapQuality').textContent = `${points.length} de ${data.docs.length} documentos no mapa · ` + (projection.totalVariance < 1e-12 ? 'sem variação entre as direções representadas.' : `projeção 2D retém ${format(projection.explained * 100, 1)}% da variação. As posições são aproximadas.`);
+  $('mapExcluded').replaceChildren();
+  if (projection.excluded.length) {
+    $('mapExcluded').append(el('p', 'Sem direção, fora do mapa:', 'footer'));
+    projection.excluded.forEach(index => {
+      const button = el('button', 'Doc ' + (index + 1) + ' · vetor vazio');
+      button.dataset.doc = index;
+      button.addEventListener('click', () => {
+        chooseMapDocument(index);
+        $('mapExcluded').querySelector(`[data-doc="${index}"]`)?.focus({ preventScroll: true });
+      });
+      $('mapExcluded').append(button);
+    });
+  }
+  renderDistanceBars(a, b);
+}
+function renderDistanceBars(a, b) {
+  const items = vectors.map((row, index) => ({ index, distance: NLP.cosineDetails(vectors[a], row).distance }))
+    .sort((left, right) => (left.distance ?? Infinity) - (right.distance ?? Infinity) || left.index - right.index);
+  const previousScroll = $('distanceBars').scrollTop;
+  $('distanceBars').replaceChildren();
+  $('distanceBarsInfo').textContent = `Referência: Doc ${a + 1}. Barras mais curtas indicam menor distância; escala fixa de 0 a 1. Todos os ${data.docs.length} documentos, ordenados por distância. Clique para escolher B.`;
+  items.forEach(({ index, distance }) => {
+    const row = el('button', undefined, 'distance-row'); row.dataset.doc = index;
+    row.setAttribute('aria-pressed', String(index === b));
+    row.setAttribute('aria-label', `Doc ${index + 1}: ${distance === null ? 'distância indefinida' : 'distância ' + format(distance)}. Selecionar como B.`);
+    const track = el('span', undefined, 'bar-track'), bar = el('span', undefined, 'bar-fill');
+    bar.style.display = 'block'; bar.style.width = (100 * (distance ?? 0)) + '%';
+    if (distance === null || distance < 1e-12) bar.style.minWidth = '0';
+    track.append(bar); track.setAttribute('aria-hidden', 'true');
+    row.append(el('span', 'Doc ' + (index + 1)), track, el('span', distance === null ? 'Indefinida' : format(distance), 'bar-value'));
+    row.addEventListener('click', () => {
+      chooseMapDocument(index);
+      $('distanceBars').querySelector(`[data-doc="${index}"]`)?.focus({ preventScroll: true });
+    });
+    $('distanceBars').append(row);
+  });
+  $('distanceBars').scrollTop = previousScroll;
+}
+
+function drawAngle({ normA, normB, angle }) {
+  const radians = (angle ?? 0) * Math.PI / 180;
+  // Direções com comprimento unitário ilustradas em 2D; não projeta as dimensões do BoW.
+  const x = 50 + 180 * Math.cos(radians), y = 205 - 180 * Math.sin(radians);
+  $('arrowLineA').setAttribute('visibility', normA ? 'visible' : 'hidden');
+  $('arrowLineA').setAttribute('x2', '230');
+  $('arrowLineB').setAttribute('visibility', normB ? 'visible' : 'hidden');
+  $('arrowLineB').setAttribute('x2', String(x)); $('arrowLineB').setAttribute('y2', String(y));
+  $('angleArc').setAttribute('d', angle === null ? '' : `M 105 205 A 55 55 0 0 0 ${50 + 55 * Math.cos(radians)} ${205 - 55 * Math.sin(radians)}`);
+  $('angleLabel').textContent = angle === null ? 'Ângulo indefinido' : 'θ = ' + format(angle) + '°';
+  $('angleDesc').textContent = `Doc ${Number($('compareA').value) + 1} e Doc ${Number($('compareB').value) + 1}: ${angle === null ? 'vetor zero, ângulo indefinido' : 'ângulo de ' + format(angle) + ' graus'}. Direções normalizadas em um esquema ilustrativo. O cálculo usa todas as dimensões.`;
+}
+function renderTokenFlow(id, tokens, markRemoved = false) {
+  const container = $(id); container.replaceChildren();
+  tokens.slice(0, 120).forEach((token, i) => {
+    const removed = markRemoved && data.removeStopwords && NLP.isStopword(token);
+    const chip = el('div', undefined, 'token-step' + (removed ? ' removed' : ''));
+    chip.append(el('span', token), el('small', removed ? 'Token ' + (i + 1) + ' · removido' : 'Token ' + (i + 1)));
+    container.append(chip);
+  });
+  if (!tokens.length) container.append(el('p', 'Nenhum token ou termo nesta etapa.', 'footer'));
+  if (tokens.length > 120) container.append(el('p', `Prévia dos primeiros 120 de ${tokens.length}. O vetor usa todos os termos.`, 'footer'));
+}
+function renderTokens() {
+  const i = Number($('tokenDoc').value), raw = data.rawTokens[i], filtered = data.filteredTokens[i];
+  $('tokenOriginal').textContent = data.docs[i];
+  $('tokenNormalized').textContent = raw.join(' ') || '(sem letras ou números)';
+  renderTokenFlow('tokenRaw', raw);
+  $('filterExplanation').textContent = data.removeStopwords ? `${raw.length - filtered.length} removido(s); ${filtered.length} mantido(s). Os tokens riscados saem da representação.` : 'Filtro desativado: todos os tokens são mantidos. Ative “Remover stopwords” para observar o efeito.';
+  renderTokenFlow('tokenFiltered', raw, true);
+  $('termExplanation').textContent = `N = ${data.ngramSize}: cada janela de ${data.ngramSize} token(s) mantido(s) forma um termo. ${data.terms[i].length} termo(s), incluindo repetições.`;
+  renderTokenFlow('tokenTerms', data.terms[i]);
+  $('tokenVectorKeys').textContent = 'Dimensões: ' + dimensionKeys();
+  $('tokenVector').textContent = 'Doc ' + (i + 1) + ' = ' + vectorString(vectors[i]);
+  $('tokenVectorInfo').textContent = `Modo ${modeNames[mode]}. Cada posição segue o vocabulário do conjunto inteiro; termos ausentes recebem zero. Use a rolagem para inspecionar vetores longos.`;
+}
+function renderFrequency() {
+  const docIndex = Number($('freqDoc').value), measure = $('freqMode').value;
+  const all = NLP.frequencyRows(data, measure, docIndex), shown = all.slice(0, 20), max = shown[0]?.value || 1;
+  const chart = $('frequencyChart'); chart.replaceChildren();
+  shown.forEach(({ term, value }) => {
+    const row = el('div', undefined, 'bar-row'), track = el('div', undefined, 'bar-track'), fill = el('div', undefined, 'bar-fill');
+    fill.style.width = (100 * value / max) + '%'; track.append(fill); track.setAttribute('aria-hidden', 'true');
+    row.append(el('span', term, 'bar-term'), track, el('span', measure === 'tfidf' ? format(value) : String(value), 'bar-value'));
+    chart.append(row);
+  });
+  if (!shown.length) chart.append(el('p', 'Nenhum termo para exibir nesta seleção.', 'footer'));
+  const title = `${measure === 'tfidf' ? 'Soma dos pesos TF-IDF' : 'Contagem dos termos'} · ${docIndex < 0 ? 'todos os documentos' : 'Doc ' + (docIndex + 1)}`;
+  $('frequencyInfo').textContent = `${title}. Exibindo ${shown.length} de ${all.length} termos com valor positivo, em ordem decrescente; empates em ordem alfabética. Medida do gráfico independente do peso dos vetores.`;
+  chart.setAttribute('aria-label', title + '. ' + shown.map(item => item.term + ': ' + (measure === 'tfidf' ? format(item.value) : item.value)).join('; '));
+}
+function renderNgrams() {
+  const i = Number($('ngramDoc').value);
+  $('ngramOriginal').textContent = data.docs[i];
+  $('ngramInfo').textContent = `N = ${data.ngramSize} · ${data.filteredTokens[i].length} tokens após o filtro → ${data.terms[i].length} termos (com repetições). ` + (data.terms[i].length ? 'Cada janela avança um token.' : 'Não há tokens suficientes para formar um termo com esse tamanho.');
+  renderTokenFlow('ngramTerms', data.terms[i]);
+}
+function setTab(name, focus = false) {
+  document.querySelectorAll('[role="tab"]').forEach(tab => {
+    const selected = tab.dataset.tab === name;
+    tab.classList.toggle('active', selected); tab.setAttribute('aria-selected', String(selected)); tab.tabIndex = selected ? 0 : -1;
+    $('panel-' + tab.dataset.tab).hidden = !selected;
+    if (selected && focus) tab.focus();
+  });
+}
+document.querySelectorAll('[role="tab"]').forEach(tab => {
+  tab.addEventListener('click', () => setTab(tab.dataset.tab));
+  tab.addEventListener('keydown', event => {
+    const tabs = [...document.querySelectorAll('[role="tab"]')], index = tabs.indexOf(tab);
+    const next = { ArrowRight: (index + 1) % tabs.length, ArrowLeft: (index + tabs.length - 1) % tabs.length, Home: 0, End: tabs.length - 1 }[event.key];
+    if (next !== undefined) { event.preventDefault(); setTab(tabs[next].dataset.tab, true); }
+  });
+});
+function syncButtons() {
+  document.querySelectorAll('.mode').forEach(button => {
+    button.classList.toggle('active', button.dataset.mode === mode);
+    button.setAttribute('aria-pressed', String(button.dataset.mode === mode));
+  });
+}
+document.querySelectorAll('.mode').forEach(button => button.addEventListener('click', () => {
+  mode = button.dataset.mode; syncButtons(); if (data) render();
+}));
+$('vectorize').addEventListener('click', build);
+$('docs').addEventListener('input', () => {
+  clearTimeout(buildTimer);
+  $('pipelineStatus').textContent = 'Atualizando a análise…';
+  buildTimer = setTimeout(build, 180);
+});
+$('stopwords').addEventListener('change', build); $('ngramSize').addEventListener('change', build);
+$('tokenDoc').addEventListener('change', () => { if (data) renderTokens(); });
+$('ngramDoc').addEventListener('change', () => { if (data) renderNgrams(); });
+['freqDoc', 'freqMode'].forEach(id => $(id).addEventListener('change', () => { if (data) renderFrequency(); }));
+['distanceA', 'distanceB'].forEach(id => $(id).addEventListener('change', () => {
+  if (!data) return;
+  $('compareA').value = $('distanceA').value; $('compareB').value = $('distanceB').value; renderComparison();
+}));
+['compareA', 'compareB'].forEach(id => $(id).addEventListener('change', () => { if (data) renderComparison(); }));
+$('similarity').addEventListener('keydown', event => {
+  const button = event.target.closest('button[data-a]');
+  if (!button || !data) return;
+  const row = Number(button.dataset.a), col = Number(button.dataset.b), last = similarities.length - 1;
+  const next = {
+    ArrowDown: [Math.min(last, row + 1), col], ArrowUp: [Math.max(0, row - 1), col],
+    ArrowRight: [row, Math.min(last, col + 1)], ArrowLeft: [row, Math.max(0, col - 1)],
+    Home: event.ctrlKey ? [0, 0] : [row, 0], End: event.ctrlKey ? [last, last] : [row, last]
+  }[event.key];
+  if (!next) return;
+  event.preventDefault();
+  const target = $('similarity').querySelector(`button[data-a="${next[0]}"][data-b="${next[1]}"]`);
+  $('similarity').querySelectorAll('button').forEach(cell => cell.tabIndex = cell === target ? 0 : -1);
+  target.focus();
+});
+function reset() {
+  $('docs').value = exampleDocs.join('\n'); $('stopwords').checked = false; $('ngramSize').value = '1'; $('freqMode').value = 'count';
+  ['tokenDoc', 'ngramDoc', 'freqDoc', 'compareA', 'compareB', 'distanceA', 'distanceB'].forEach(id => $(id).value = '');
+  mode = 'count'; syncButtons(); setTab('main'); build();
+}
+$('reset').addEventListener('click', reset);
+$('stopwordList').textContent = NLP.stopwordList.join(' · ');
+reset();
+
+</script>
+</body>
+</html>
