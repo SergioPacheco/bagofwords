@@ -2,7 +2,9 @@
 
 Aplicação educativa em português para acompanhar a transformação de textos em vetores. Funciona inteiramente no navegador, sem backend, bibliotecas externas ou envio de documentos.
 
-Abra [bag-of-words.html](bag-of-words.html) em um navegador moderno. Não é necessário instalar dependências ou iniciar um servidor.
+**Acesse o laboratório online:** [https://sergiopacheco.github.io/bagofwords/bag-of-words.html](https://sergiopacheco.github.io/bagofwords/bag-of-words.html)
+
+Abra o link em um navegador moderno. Não é necessário instalar dependências ou iniciar um servidor. Para usar localmente, baixe o arquivo `bag-of-words.html` e abra-o no navegador.
 
 ## Explorações
 
