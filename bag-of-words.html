@@ -20,6 +20,10 @@ label.label{display:block}button,select,input,textarea{accent-color:#f75eaa}butt
 #distanceBars{max-height:360px;overflow:auto;display:grid;gap:9px;padding:3px}.distance-row{display:grid;grid-template-columns:70px minmax(0,1fr) 72px;gap:10px;align-items:center;width:100%;border-radius:7px;padding:10px;background:#292347;text-align:left;font-weight:400;min-width:0}.distance-row[aria-pressed=true]{border-color:#ffd17f}.distance-row .bar-fill{background:linear-gradient(90deg,#ff9aca,#a2dbff)}.distance-row .bar-track{height:16px}.distance-row .bar-value{font-size:12px}.distance-row small{color:#b9b3d5}
 .distance-controls{margin:20px 0}.map-excluded{display:flex;gap:8px;flex-wrap:wrap}.map-excluded button{font-size:12px;padding:6px 12px}.distance-bars-title{margin-top:25px}.distance-summary{margin-bottom:15px}
 @media(max-width:700px){.distance-layout{grid-template-columns:1fr}.distance-number{font-size:34px}.distance-row{grid-template-columns:58px minmax(0,1fr) 65px;gap:7px}.map-point text{font-size:30px}.map-point circle{r:16px}.map-point.selected-a circle,.map-point.selected-b circle{r:21px}.map-axis-label{font-size:24px}.distance-controls>label{flex-basis:100%}}
+.learning-switch{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}.learning-switch [aria-pressed=true]{background:#b2a5ff;color:#1c1234;border-color:#b2a5ff}
+.guide-progress{display:flex;gap:8px;flex-wrap:wrap;list-style:none;padding:0;margin:22px 0}.guide-progress li{border:1px solid #514474;border-radius:20px;padding:7px 12px;font-size:12px;color:#c7c0e1}.guide-progress [aria-current=step]{background:#b2a5ff;color:#1c1234;border-color:#b2a5ff;font-weight:800}
+.guide-docs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.guide-docs p{margin:0}.guide-scene{margin:20px 0}.guide-question{font-size:18px;color:#ffe1a8}.guide-bag{display:grid;gap:15px;margin:16px 0}.bag-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.bag-row strong{min-width:62px;font-size:13px}.bag-token{border:1px solid #766598;border-radius:9px;padding:9px 13px;background:#292347;font:15px ui-monospace,monospace}.bag-token.counted{opacity:.65}.bag-token.count-current,.matrix .count-current{outline:3px solid #ffd17f;outline-offset:-3px;background:#633858;color:#fff;opacity:1}.guide-count-status{min-height:50px;margin:15px 0}.guide-nav{display:flex;gap:10px;flex-wrap:wrap;border-top:1px solid #514474;padding-top:18px;margin-top:20px}.guide-result{font-size:32px;color:#ff9aca}.guide-scene code{color:#ffe1a8}.experiment-controls{margin:18px 0}.experiment-controls>label{flex:1 1 260px}.weight-cell{padding:0}.matrix .weight-cell button{display:block;width:100%;border:0;border-radius:0;padding:10px 8px;background:transparent;color:inherit;font:inherit}.weight-cell [aria-pressed=true]{outline:2px solid #ffd17f;outline-offset:-2px}.weight-detail{margin-top:15px;overflow-wrap:anywhere}.weight-detail .math{margin:0}.guide-scene,.guide-docs>*{min-width:0}
+@media(max-width:700px){.guide-docs{grid-template-columns:1fr}.guide-progress{gap:6px}.guide-progress li{font-size:11px;padding:6px 9px}.guide-question{font-size:16px}.bag-token{font-size:14px;padding:8px 10px}.guide-nav button{flex:1 1 auto}}
 </style>
 </head>
 <body>
@@ -29,9 +33,39 @@ label.label{display:block}button,select,input,textarea{accent-color:#f75eaa}butt
   <h1>Bag of Words: do texto aos vetores</h1>
   <p>Explore como um computador representa texto: acompanhe os tokens, conte termos, experimente N-gramas e compare documentos. Uma ponte entre o Bag of Words e os próximos conceitos da aula: BPE e embeddings.</p>
 
+  <div class="learning-switch" role="group" aria-label="Modo de aprendizagem">
+    <button id="showGuide" aria-pressed="true" aria-controls="guidePanel">Aprender passo a passo</button>
+    <button id="showLab" aria-pressed="false" aria-controls="labPanel">Explorar o laboratório</button>
+  </div>
+  <section class="card" id="guidePanel" aria-labelledby="guideTitle">
+    <div class="eyebrow">Comece por aqui · dois documentos, duas palavras</div>
+    <h2 id="guideTitle">Como o texto vira um vetor?</h2>
+    <p>Bag of Words representa um documento pelas contagens de seus termos em um vocabulário compartilhado. Acompanhe cada ocorrência antes de comparar os documentos.</p>
+    <ol class="guide-progress" id="guideProgress" aria-label="Etapas da aprendizagem"></ol>
+    <div class="guide-docs"><div class="panel"><div class="label">Documento 1</div><p class="sample-text">gato gato cão</p></div><div class="panel"><div class="label">Documento 2</div><p class="sample-text">cão</p></div></div>
+    <h3 id="guideStepLabel" tabindex="-1"></h3>
+    <p id="guideQuestion" class="guide-question"></p>
+    <button id="guideReveal" class="primary" aria-controls="guideScene" aria-expanded="false">Revelar esta etapa</button>
+    <div id="guideScene" class="guide-scene" hidden></div>
+    <div class="guide-nav">
+      <button id="guidePrevious" disabled>Etapa anterior</button>
+      <button id="guideNext" class="primary" disabled>Próxima etapa</button>
+      <button id="guideRestart">Recomeçar o guia</button>
+    </div>
+    <div class="actions"><button id="guideUseExample">Usar estes textos no laboratório</button></div>
+    <p class="footer">No guia usamos unigramas e contagem, sem remover palavras. No laboratório você pode editar os textos e experimentar outros pesos.</p>
+  </section>
+
+  <div id="labPanel" hidden>
   <section class="card" aria-labelledby="documentsTitle">
     <div class="section-head"><span class="num">1</span><h2 id="documentsTitle">Documentos e vocabulário</h2></div>
     <p class="muted">Um documento por linha. Edite os textos para atualizar todas as visualizações automaticamente.</p>
+    <div class="controls experiment-controls">
+      <label for="experimentSelect">Experimentos prontos<select id="experimentSelect"><option value="synonyms">Palavras diferentes, sentidos próximos</option><option value="order">A ordem muda o sentido</option><option value="repetition">Repetir muda a direção?</option><option value="vocabulary">Uma palavra nova, uma dimensão nova</option></select></label>
+      <button id="loadExperiment">Carregar experimento</button>
+    </div>
+    <p id="experimentQuestion" class="footer"></p>
+    <div id="experimentNote" class="notice" hidden><p id="experimentExplanation"></p><p id="experimentCurrent" role="status" aria-live="polite"></p><button id="experimentAdd" hidden>Adicionar documento “elefante”</button></div>
     <div class="columns">
       <div class="panel">
         <label class="label" for="docs">Documentos (um por linha)</label>
@@ -79,10 +113,12 @@ label.label{display:block}button,select,input,textarea{accent-color:#f75eaa}butt
         <p id="matrixPreview" class="footer"></p>
         <div class="stats" id="stats"></div>
         <p id="modeInfo" class="footer"></p>
+        <p id="weightHelp" class="footer" hidden>Selecione um peso TF-IDF para ver de onde vem o número. Use as setas entre as células e Enter ou espaço para inspecionar.</p>
+        <div id="weightDetail" class="panel weight-detail" role="status" aria-live="polite" hidden></div>
       </section>
       <section class="card" aria-labelledby="similarityTitle">
         <div class="section-head"><span class="num purple">3</span><h2 id="similarityTitle">Similaridade entre documentos</h2></div>
-        <p class="muted">O cosseno compara as direções dos vetores: 1 indica a mesma direção; 0, nenhum termo compartilhado. Isso mede a representação lexical, não a compreensão do significado.</p>
+        <p class="muted">Bag of Words transforma textos em vetores; o cosseno usa esses vetores para compará-los. Ele compara suas direções: 1 indica a mesma direção; 0, nenhum termo compartilhado. Isso mede a representação lexical, não a compreensão do significado.</p>
         <div id="similarityWarning" class="footer" role="status"></div>
         <div class="scroll"><table class="matrix similarity" id="similarity" role="grid" aria-label="Similaridade de cosseno entre documentos" aria-describedby="similarityHelp"></table></div>
         <p class="footer" id="similarityHelp">Escolha qualquer par abaixo ou clique em uma célula. Na matriz, use as setas para navegar e Enter ou espaço para selecionar; Tab segue para o próximo controle.</p>
@@ -167,6 +203,7 @@ label.label{display:block}button,select,input,textarea{accent-color:#f75eaa}butt
       <p class="notice">A remoção de stopwords ocorre antes dos N-gramas e pode aproximar palavras que estavam separadas. As janelas percorrem os tokens de cada documento, inclusive entre frases após remover a pontuação, mas nunca atravessam documentos.</p>
       <p class="footer">Experimente os documentos 4 e 5 do exemplo com bigramas e observe a similaridade. N-gramas preservam apenas a ordem local e ainda não compreendem o sentido das frases.</p>
     </section>
+  </div>
   </div>
   <p class="page-footer">Laboratório no navegador · HTML, CSS e JavaScript · Textos processados localmente</p>
 </main>
@@ -273,6 +310,162 @@ function el(tag, text, klass) {
   if (klass) node.className = klass;
   return node;
 }
+// O guia usa o mesmo núcleo de cálculo do laboratório, com um exemplo pequeno.
+const guideDocs = ['gato gato cão', 'cão'];
+const guideData = NLP.analyzeDocuments(guideDocs);
+const guideSteps = [
+  ['Texto', 'O que é um documento?', 'Quantos documentos existem aqui? A repetição de “gato” faz parte do texto?'],
+  ['Tokens', 'Separar as ocorrências', 'Quantos tokens há no documento 1? E se embaralharmos as palavras?'],
+  ['Vocabulário', 'Criar as posições compartilhadas', 'Precisamos de uma posição para cada ocorrência ou para cada palavra diferente?'],
+  ['Contagem', 'Contar palavra por palavra', 'Em qual coluna entra o próximo token? Quando “gato” aparece novamente, o que muda?'],
+  ['Vetor', 'Ler cada linha como números', 'Qual é o vetor do documento 2? O que significa o zero?'],
+  ['Comparação', 'Usar os vetores para comparar', 'Compartilhar “cão” torna estes documentos idênticos?']
+];
+let guideStep = 0, guideRevealed = Array(6).fill(false), guideCount = 0, guideReversed = false;
+function showLearningMode(name) {
+  const guided = name === 'guide';
+  $('guidePanel').hidden = !guided; $('labPanel').hidden = guided;
+  $('showGuide').setAttribute('aria-pressed', String(guided));
+  $('showLab').setAttribute('aria-pressed', String(!guided));
+}
+function guideTokenRows() {
+  return guideData.rawTokens.map(row => guideReversed ? [...row].reverse() : row);
+}
+function guideSequence() {
+  return guideTokenRows().flatMap((row, doc) => row.map((term, position) => ({ doc, term, position })));
+}
+function guideTable(rows, id) {
+  const table = el('table', undefined, 'matrix'); table.id = id;
+  table.setAttribute('aria-label', 'Contagens de cão e gato nos dois documentos');
+  const head = el('tr'), corner = el('th', 'Documento'); corner.scope = 'col'; head.append(corner);
+  guideData.vocab.forEach(term => { const cell = el('th', term); cell.scope = 'col'; head.append(cell); });
+  table.append(head);
+  rows.forEach((row, doc) => {
+    const tr = el('tr'), label = el('th', 'Doc ' + (doc + 1)); label.scope = 'row'; tr.append(label);
+    row.forEach(value => tr.append(el('td', String(value), value ? 'nonzero' : 'zero')));
+    table.append(tr);
+  });
+  const scroll = el('div', undefined, 'scroll'); scroll.append(table); return scroll;
+}
+function renderGuideBag() {
+  const bag = $('guideBag'); bag.replaceChildren();
+  let index = 0;
+  guideTokenRows().forEach((tokens, doc) => {
+    const row = el('div', undefined, 'bag-row'); row.append(el('strong', 'Doc ' + (doc + 1)));
+    tokens.forEach(term => {
+      const chip = el('span', term, 'bag-token'); chip.dataset.term = term;
+      if (guideStep === 3) {
+        chip.classList.toggle('counted', index < guideCount);
+        chip.classList.toggle('count-current', guideCount > 0 && index === guideCount - 1);
+        if (guideCount > 0 && index === guideCount - 1) chip.setAttribute('aria-label', term + ', ocorrência que acabou de ser contada');
+      }
+      row.append(chip); index++;
+    });
+    bag.append(row);
+  });
+}
+function renderGuideCount() {
+  const sequence = guideSequence(), counts = guideData.counts.map(row => row.map(() => 0));
+  sequence.slice(0, guideCount).forEach(({ doc, term }) => counts[doc][guideData.vocab.indexOf(term)]++);
+  $('guideMatrixContainer').replaceChildren(guideTable(counts, 'guideMatrix'));
+  renderGuideBag();
+  if (guideCount) {
+    const { doc, term } = sequence[guideCount - 1], column = guideData.vocab.indexOf(term), value = counts[doc][column];
+    $('guideMatrix').rows[doc + 1].cells[column + 1].classList.add('count-current');
+    $('guideCountStatus').textContent = `Token ${guideCount} de ${sequence.length}: “${term}” no Doc ${doc + 1}. Coluna “${term}”: ${value - 1} → ${value}.`;
+  } else $('guideCountStatus').textContent = 'Todas as posições começam em zero. Clique em “Próximo token” para contar a primeira ocorrência.';
+  const complete = guideCount === sequence.length;
+  $('countNext').disabled = complete;
+  $('guideNext').disabled = !complete;
+  if (complete) $('guideCountStatus').append(document.createTextNode(' Contagem concluída: cada ocorrência acrescentou uma unidade à posição correspondente.'));
+}
+function renderGuideScene() {
+  const scene = $('guideScene'); scene.replaceChildren();
+  if (guideStep === 0) scene.append(el('p', 'São dois documentos. Cada linha é uma unidade que queremos representar. O primeiro tem duas ocorrências de “gato” e uma de “cão”; o segundo tem apenas “cão”.'));
+  if (guideStep === 1 || guideStep === 3) {
+    scene.append(el('p', guideStep === 1 ? 'Cada peça representa uma ocorrência. O documento 1 tem 3 tokens, mas apenas 2 palavras diferentes. Repetições continuam no saco de palavras.' : 'Leia os tokens na ordem mostrada. O destaque conecta a ocorrência à célula que acabou de aumentar. Cada documento tem sua própria linha.'));
+    const bag = el('div', undefined, 'guide-bag'); bag.id = 'guideBag'; scene.append(bag);
+    const shuffle = el('button', 'Embaralhar palavras'); shuffle.id = 'guideShuffle';
+    shuffle.addEventListener('click', () => {
+      guideReversed = !guideReversed; guideCount = 0;
+      renderGuideBag(); if (guideStep === 3) renderGuideCount();
+      $('guideShuffleStatus').textContent = guideStep === 3 ? 'Ordem alterada e contagem reiniciada. Conte novamente: o resultado será o mesmo.' : 'Ordem alterada. As mesmas ocorrências permanecem; com unigramas, as contagens serão iguais.';
+    });
+    const status = el('p', undefined, 'footer'); status.id = 'guideShuffleStatus'; status.setAttribute('role', 'status');
+    scene.append(shuffle, status); renderGuideBag();
+  }
+  if (guideStep === 2) {
+    scene.append(el('p', 'O vocabulário reúne os termos diferentes dos dois documentos. Aqui, escolhemos a ordem alfabética: [cão; gato]. Cada termo ocupa uma posição fixa em todos os vetores.'));
+    const terms = el('div', undefined, 'token-flow');
+    guideData.vocab.forEach((term, i) => terms.append(el('span', i + ': ' + term, 'bag-token'))); scene.append(terms);
+    scene.append(el('p', 'São 2 dimensões, mesmo que um documento tenha 3 tokens. A posição 0 sempre representa “cão”; a posição 1 sempre representa “gato”.'));
+  }
+  if (guideStep === 3) {
+    const controls = el('div', undefined, 'actions'), next = el('button', 'Próximo token', 'primary'), restart = el('button', 'Reiniciar contagem');
+    next.id = 'countNext'; restart.id = 'countRestart';
+    next.addEventListener('click', () => { if (guideCount < guideSequence().length) { guideCount++; renderGuideCount(); } });
+    restart.addEventListener('click', () => { guideCount = 0; renderGuideCount(); $('guideShuffleStatus').textContent = ''; });
+    controls.append(next, restart);
+    const status = el('p', undefined, 'guide-count-status'); status.id = 'guideCountStatus'; status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
+    const matrix = el('div'); matrix.id = 'guideMatrixContainer'; scene.append(controls, status, matrix); renderGuideCount();
+  }
+  if (guideStep === 4) {
+    scene.append(guideTable(guideData.counts, 'guideFinalMatrix'));
+    scene.append(el('p', 'Dimensões compartilhadas: [cão; gato].'));
+    guideData.counts.forEach((row, i) => scene.append(el('p', 'Doc ' + (i + 1) + ' = [' + row.join('; ') + ']', 'vector-text')));
+    scene.append(el('p', 'O vetor do Doc 2 é [1; 0]: uma ocorrência de “cão” e nenhuma de “gato”. Cada posição conta um termo; ela não é o identificador da palavra nem sua posição na frase.'));
+  }
+  if (guideStep === 5) {
+    const details = NLP.cosineDetails(...guideData.counts);
+    scene.append(el('p', 'Bag of Words construiu os vetores. Agora o cosseno compara suas direções. Eles compartilham “cão”, mas o Doc 1 também tem “gato”.'));
+    scene.append(el('strong', 'Similaridade: ' + format(details.similarity), 'guide-result'));
+    scene.append(el('p', 'A · B = (1 × 1) + (2 × 0) = 1\n‖A‖ = √5\n‖B‖ = 1\ncos(θ) = 1 / (√5 × 1) ≈ ' + format(details.similarity), 'math'));
+    scene.append(el('p', 'A pontuação mede a direção dos vetores de contagem. Não é uma probabilidade nem uma porcentagem de compreensão do sentido. No laboratório, experimente sinônimos, inversão da ordem e repetição.'));
+  }
+}
+function renderGuide(focus = false) {
+  $('guideProgress').replaceChildren();
+  guideSteps.forEach(([label], i) => {
+    const item = el('li', (i + 1) + ' · ' + label);
+    if (i === guideStep) item.setAttribute('aria-current', 'step'); $('guideProgress').append(item);
+  });
+  $('guideStepLabel').textContent = (guideStep + 1) + '/6 · ' + guideSteps[guideStep][1];
+  $('guideQuestion').textContent = guideSteps[guideStep][2];
+  const revealed = guideRevealed[guideStep];
+  $('guideScene').hidden = !revealed; $('guideReveal').hidden = revealed;
+  $('guideReveal').setAttribute('aria-expanded', String(revealed));
+  $('guidePrevious').disabled = guideStep === 0;
+  $('guideNext').hidden = guideStep === 5;
+  $('guideNext').disabled = !revealed || (guideStep === 3 && guideCount < guideSequence().length);
+  if (revealed) renderGuideScene();
+  if (focus) $('guideStepLabel').focus();
+}
+const experiments = {
+  synonyms: { docs: ['gato', 'felino'], question: '“Gato” e “felino” terão vetores parecidos?', explanation: 'Com unigramas, “gato” e “felino” ocupam dimensões diferentes. O cosseno é 0 mesmo que possam se referir ao mesmo animal. A representação considera as palavras usadas.' },
+  order: { docs: ['O cão mordeu o homem', 'O homem mordeu o cão'], question: 'Inverter quem mordeu quem muda o vetor?', explanation: 'Com unigramas, os dois vetores são iguais e o cosseno é 1. Troque para bigramas: o valor passa a 0,75. N-gramas capturam parte da ordem local.' },
+  repetition: { docs: ['gato cão', 'gato gato cão cão'], question: 'Duplicar todas as ocorrências muda a direção do vetor?', explanation: 'As contagens passam de [1; 1] para [2; 2], na ordem [cão; gato]. O segundo vetor tem o dobro do comprimento, mas a mesma direção: cosseno 1. Isso não significa textos idênticos.' },
+  vocabulary: { docs: ['gato', 'cão'], question: 'O que acontece com os vetores antigos quando surge uma palavra inédita?', explanation: 'Começamos com [cão; gato]. Adicione “elefante”: o vocabulário passa a [cão; elefante; gato]. Os documentos anteriores ganham zero na coluna nova. Aqui o vocabulário é reconstruído com o conjunto inteiro; em uma aplicação com vocabulário fixo, termos desconhecidos precisariam de uma política própria.' }
+};
+let activeExperiment = null;
+function renderExperiment() {
+  const experiment = experiments[activeExperiment];
+  const original = experiment && data && data.docs.length === experiment.docs.length && data.docs.every((doc, i) => doc === experiment.docs[i]);
+  const expanded = activeExperiment === 'vocabulary' && data && data.docs.length === 3 && data.docs.every((doc, i) => doc === [...experiments.vocabulary.docs, 'elefante'][i]);
+  if (!original && !expanded) activeExperiment = null;
+  $('experimentNote').hidden = !activeExperiment;
+  $('experimentAdd').hidden = activeExperiment !== 'vocabulary';
+  $('experimentAdd').disabled = Boolean(expanded);
+  if (activeExperiment) {
+    $('experimentExplanation').textContent = 'Referência inicial: unigramas, contagem, sem remover stopwords. ' + experiments[activeExperiment].explanation;
+    const comparison = NLP.cosineDetails(vectors[0], vectors[1]);
+    $('experimentCurrent').textContent = `Configuração atual: ${modeNames[mode]}, N = ${data.ngramSize}, filtro de stopwords ${data.removeStopwords ? 'ativado' : 'desativado'}. Doc 1 × Doc 2: cosseno ${format(comparison.similarity)}.` + (comparison.angle === null ? ' Um dos vetores está vazio: usamos zero por convenção; não há direção para comparar.' : '');
+  }
+}
+function loadDocuments(docs) {
+  $('docs').value = docs.join('\n'); $('stopwords').checked = false; $('ngramSize').value = '1'; $('freqMode').value = 'count';
+  ['tokenDoc', 'ngramDoc', 'freqDoc', 'compareA', 'compareB', 'distanceA', 'distanceB'].forEach(id => $(id).value = '');
+  mode = 'count'; syncButtons(); setTab('main'); build();
+}
 function build() {
   clearTimeout(buildTimer);
   try {
@@ -288,6 +481,8 @@ function build() {
     projection = null;
     $('error').textContent = error.message;
     $('analysisViews').hidden = true;
+    $('weightDetail').hidden = true;
+    activeExperiment = null; renderExperiment();
     $('tokens').replaceChildren();
     $('vocabInfo').textContent = 'Nenhum resultado válido para a entrada atual.';
     $('pipelineStatus').textContent = 'Ajuste os documentos ou as opções para continuar.';
@@ -316,6 +511,7 @@ function render() {
   fillDocSelect('compareA'); fillDocSelect('compareB', 1);
   fillDocSelect('distanceA'); fillDocSelect('distanceB', 1);
   renderVocabulary(); renderMatrix(); renderSimilarity(); renderTokens(); renderFrequency(); renderNgrams();
+  renderExperiment();
   const before = data.rawTokens.reduce((sum, row) => sum + row.length, 0);
   const after = data.filteredTokens.reduce((sum, row) => sum + row.length, 0);
   $('pipelineStatus').textContent = `${data.docs.length} documento(s) · ${before} tokens → ${after} após o filtro · ${data.vocab.length} termos únicos · N = ${data.ngramSize} · ${modeNames[mode]}`;
@@ -335,12 +531,26 @@ function renderVocabulary() {
 function renderMatrix() {
   const table = $('matrix'), head = el('tr');
   table.replaceChildren();
+  $('weightDetail').hidden = true; $('weightHelp').hidden = mode !== 'tfidf';
+  if (mode === 'tfidf') { table.setAttribute('role', 'grid'); table.setAttribute('aria-describedby', 'weightHelp'); }
+  else { table.removeAttribute('role'); table.removeAttribute('aria-describedby'); }
   const corner = el('th', 'Documento'); corner.scope = 'col'; head.append(corner);
   data.vocab.slice(0, 60).forEach(term => { const th = el('th', term); th.scope = 'col'; head.append(th); });
   table.append(head);
   vectors.slice(0, 30).forEach((row, i) => {
     const tr = el('tr'), label = el('th', 'Doc ' + (i + 1)); label.scope = 'row'; tr.append(label);
-    row.slice(0, 60).forEach(value => tr.append(el('td', mode === 'tfidf' ? format(value) : String(value), value ? 'nonzero' : 'zero')));
+    row.slice(0, 60).forEach((value, j) => {
+      const cell = el('td', mode === 'tfidf' ? undefined : String(value), value ? 'nonzero' : 'zero');
+      if (mode === 'tfidf') {
+        cell.classList.add('weight-cell');
+        const button = el('button', format(value)); button.type = 'button'; button.dataset.doc = i; button.dataset.term = j;
+        button.tabIndex = i === 0 && j === 0 ? 0 : -1;
+        button.setAttribute('aria-label', `Inspecionar Doc ${i + 1}, termo “${data.vocab[j]}”: ${format(value)}`);
+        button.setAttribute('aria-pressed', 'false');
+        button.addEventListener('click', () => inspectWeight(i, j)); cell.append(button);
+      }
+      tr.append(cell);
+    });
     table.append(tr);
   });
   $('matrixPreview').textContent = data.docs.length > 30 || data.vocab.length > 60 ? `Prévia: até 30 documentos × 60 termos de ${data.docs.length} × ${data.vocab.length}. Os cálculos e os vetores individuais usam todas as dimensões.` : '';
@@ -355,6 +565,19 @@ function renderMatrix() {
     binary: 'Binário: 1 significa presença do termo e 0, ausência; repetições não aumentam o peso.',
     tfidf: 'TF-IDF: frequência bruta × IDF suavizado. IDF = ln((1 + número de documentos)/(1 + documentos contendo o termo)) + 1. Exibição arredondada; os cálculos usam a precisão completa.'
   }[mode];
+}
+function inspectWeight(doc, term) {
+  if (!data || mode !== 'tfidf') return;
+  const tf = data.counts[doc][term], df = data.df[term], n = data.docs.length;
+  const idf = Math.log((1 + n) / (1 + df)) + 1, weight = tf * idf;
+  const detail = $('weightDetail'); detail.replaceChildren(); detail.hidden = false;
+  detail.append(el('h3', `Doc ${doc + 1} · termo “${data.vocab[term]}”`));
+  detail.append(el('p', `TF = ${tf} ocorrência(s) neste documento\nDF = ${df} documento(s) contendo o termo\nN = ${n} documento(s) no conjunto\nIDF = ln((1 + ${n}) / (1 + ${df})) + 1 ≈ ${format(idf, 4)}\nTF-IDF = ${tf} × ${format(idf, 4)} ≈ ${format(weight, 4)}`, 'math'));
+  detail.append(el('p', 'TF conta ocorrências; DF conta documentos, mesmo que o termo apareça várias vezes em um deles. Usamos IDF suavizado e frequência bruta, sem normalizar estes pesos. Valores exibidos arredondados.', 'footer'));
+  $('matrix').querySelectorAll('button').forEach(button => {
+    const selected = Number(button.dataset.doc) === doc && Number(button.dataset.term) === term;
+    button.tabIndex = selected ? 0 : -1; button.setAttribute('aria-pressed', String(selected));
+  });
 }
 function renderSimilarity() {
   const table = $('similarity'), head = el('tr');
@@ -619,12 +842,44 @@ $('similarity').addEventListener('keydown', event => {
   target.focus();
 });
 function reset() {
-  $('docs').value = exampleDocs.join('\n'); $('stopwords').checked = false; $('ngramSize').value = '1'; $('freqMode').value = 'count';
-  ['tokenDoc', 'ngramDoc', 'freqDoc', 'compareA', 'compareB', 'distanceA', 'distanceB'].forEach(id => $(id).value = '');
-  mode = 'count'; syncButtons(); setTab('main'); build();
+  activeExperiment = null; loadDocuments(exampleDocs);
 }
+$('showGuide').addEventListener('click', () => showLearningMode('guide'));
+$('showLab').addEventListener('click', () => showLearningMode('lab'));
+$('guideReveal').addEventListener('click', () => { guideRevealed[guideStep] = true; renderGuide(true); });
+$('guideNext').addEventListener('click', () => { if (guideStep < 5 && !$('guideNext').disabled) { guideStep++; renderGuide(true); } });
+$('guidePrevious').addEventListener('click', () => { if (guideStep > 0) { guideStep--; renderGuide(true); } });
+$('guideRestart').addEventListener('click', () => {
+  guideStep = 0; guideCount = 0; guideReversed = false; guideRevealed = Array(6).fill(false); renderGuide(true);
+});
+$('guideUseExample').addEventListener('click', () => {
+  activeExperiment = null; loadDocuments(guideDocs); showLearningMode('lab'); $('docs').focus();
+});
+$('experimentSelect').addEventListener('change', () => {
+  $('experimentQuestion').textContent = experiments[$('experimentSelect').value].question + ' Faça uma previsão antes de carregar.';
+});
+$('loadExperiment').addEventListener('click', () => {
+  activeExperiment = $('experimentSelect').value; loadDocuments(experiments[activeExperiment].docs);
+});
+$('experimentAdd').addEventListener('click', () => {
+  if (activeExperiment === 'vocabulary' && !$('experimentAdd').disabled) {
+    $('docs').value = [...experiments.vocabulary.docs, 'elefante'].join('\n'); build();
+  }
+});
+$('matrix').addEventListener('keydown', event => {
+  const button = event.target.closest('button[data-doc]');
+  if (!button || !data) return;
+  const row = Number(button.dataset.doc), column = Number(button.dataset.term), lastRow = Math.min(data.docs.length, 30) - 1, lastColumn = Math.min(data.vocab.length, 60) - 1;
+  const next = { ArrowDown: [Math.min(lastRow, row + 1), column], ArrowUp: [Math.max(0, row - 1), column], ArrowRight: [row, Math.min(lastColumn, column + 1)], ArrowLeft: [row, Math.max(0, column - 1)], Home: event.ctrlKey ? [0, 0] : [row, 0], End: event.ctrlKey ? [lastRow, lastColumn] : [row, lastColumn] }[event.key];
+  if (!next) return;
+  event.preventDefault();
+  const target = $('matrix').querySelector(`button[data-doc="${next[0]}"][data-term="${next[1]}"]`);
+  $('matrix').querySelectorAll('button').forEach(cell => cell.tabIndex = cell === target ? 0 : -1); target.focus();
+});
 $('reset').addEventListener('click', reset);
 $('stopwordList').textContent = NLP.stopwordList.join(' · ');
+$('experimentQuestion').textContent = experiments.synonyms.question + ' Faça uma previsão antes de carregar.';
+renderGuide();
 reset();
 
 </script>

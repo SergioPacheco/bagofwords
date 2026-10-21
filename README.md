@@ -6,6 +6,18 @@ Aplicação educativa em português para acompanhar a transformação de textos 
 
 Abra o link em um navegador moderno. Não é necessário instalar dependências ou iniciar um servidor. Para usar localmente, baixe o arquivo `bag-of-words.html` e abra-o no navegador.
 
+## Aprender passo a passo
+
+A página começa com um guia de seis etapas: **texto → tokens → vocabulário → contagem → vetor → comparação**. Dois documentos curtos (`gato gato cão` e `cão`) permitem acompanhar de onde vem cada número.
+
+- Faça uma previsão antes de **Revelar esta etapa**.
+- Na etapa **Contagem**, clique em **Próximo token**: a ocorrência e a célula correspondente ficam destacadas, e o contador aumenta uma unidade. Cada documento usa sua própria linha no mesmo vocabulário.
+- Use **Embaralhar palavras** para mudar a ordem mantendo as repetições. Na etapa de contagem, isso reinicia os contadores para comparar o resultado.
+- **Etapa anterior** permite revisar respostas; **Recomeçar o guia** restaura a atividade.
+- **Explorar o laboratório** preserva os documentos da exploração. **Usar estes textos no laboratório** carrega explicitamente o exemplo curto e restaura unigramas e contagem.
+
+O guia distingue a construção da representação BoW da comparação por cosseno. A pontuação de similaridade não é uma probabilidade nem uma medida de compreensão do significado.
+
 ## Explorações
 
 - **Documentos e vocabulário:** um documento por linha, com atualização automática. Linhas em branco são ignoradas.
@@ -14,10 +26,14 @@ Abra o link em um navegador moderno. Não é necessário instalar dependências 
 - **Tokens:** texto original → normalização → tokens numerados → filtro de stopwords → termos → vetor alinhado ao vocabulário do conjunto.
 - **Frequência:** até 20 termos com maior contagem ou soma dos pesos TF-IDF, considerando todos os documentos ou um documento selecionado. A medida do gráfico é independente do modo dos vetores.
 - **N-gramas:** unigramas, bigramas e trigramas, com janelas que avançam um token e preservam parte da ordem local.
+- **Experimentos prontos:** sinônimos, inversão da ordem, repetição proporcional e expansão do vocabulário. Cada experimento apresenta uma pergunta e uma explicação; carregar restaura unigramas, contagem e stopwords desativadas. O experimento de vocabulário permite adicionar um documento com uma palavra inédita e observar os zeros nas linhas anteriores.
+- **Inspeção de TF-IDF:** no modo TF-IDF, selecione uma célula da matriz para ver TF, DF, número de documentos, IDF suavizado e multiplicação final. A matriz usa uma parada de Tab; as setas movem entre pesos e Enter ou espaço seleciona uma célula.
 
 Os controles de stopwords e N-gramas afetam todas as explorações. A normalização preserva acentos e números, converte para minúsculas e trata pontuação como separador. A lista de stopwords é didática, pode ser consultada na interface e preserva a negação “não”. O filtro ocorre **antes** da formação dos N-gramas; as janelas podem atravessar frases no mesmo documento, mas nunca documentos diferentes.
 
 ## Roteiro para a aula
+
+Comece pelo guia, pedindo que a turma antecipe as contagens. Depois, abra **Explorar o laboratório** para seguir o roteiro abaixo com o exemplo de seis documentos:
 
 1. No exemplo inicial, compare os documentos 1–2 e 1–3: sinônimos não são reconhecidos pelo BoW.
 2. Abra **Tokens** e ative a remoção de stopwords para acompanhar as palavras removidas e a mudança do vetor.
