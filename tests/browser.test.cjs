@@ -1,11 +1,15 @@
-// Integração no Chrome real, sem instalar bibliotecas nem servir a aplicação.
+// Integração em Chrome e Firefox reais, abrindo o HTML via file://.
+// Um coletor HTTP temporário em localhost recebe apenas os resultados dos testes.
 const assert = require('node:assert/strict');
-const { readFileSync, writeFileSync, mkdtempSync, rmSync } = require('node:fs');
+const { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync } = require('node:fs');
 const { tmpdir } = require('node:os');
 const { join } = require('node:path');
-const { spawnSync } = require('node:child_process');
+const { spawn } = require('node:child_process');
+const { createServer } = require('node:http');
+const { pathToFileURL } = require('node:url');
+const { randomUUID } = require('node:crypto');
 
-async function browserChecks() {
+async function browserChecks(expectedWidth) {
   const results = [];
   const $ = id => document.getElementById(id);
   const check = (ok, message) => { if (!ok) throw new Error(message); };
@@ -13,6 +17,9 @@ async function browserChecks() {
   const docs = value => { $('docs').value = value; $('vectorize').click(); };
   const test = async (name, fn) => { try { await fn(); results.push({ name, pass: true }); } catch (error) { results.push({ name, pass: false, error: error.message }); } };
 
+  await test('viewport não fica menor que a largura solicitada', () => {
+    check(innerWidth >= expectedWidth, `Viewport real ${innerWidth}px; mínimo solicitado ${expectedWidth}px`);
+  });
   await test('guia revela etapas e conta cada ocorrência na coluna compartilhada', () => {
     check($('labPanel').hidden && !$('guidePanel').hidden, 'Primeira visita não começa pelo guia');
     check($('guideNext').disabled && $('guideScene').hidden, 'Resposta foi revelada antes da pergunta');
@@ -268,30 +275,172 @@ async function browserChecks() {
     check(document.documentElement.scrollWidth <= innerWidth, 'Mapa ultrapassa a largura da tela');
     $('reset').click();
   });
+  await test('BPE treina pares reais e navega pelas regras em ordem', () => {
+    document.querySelector('[data-tab="bpe"]').click();
+    $('bpeCorpus').value = 'abab abab'; $('bpeCorpus').dispatchEvent(new Event('input', { bubbles: true }));
+    $('bpeMergeLimit').value = '8'; $('bpeMergeLimit').dispatchEvent(new Event('input', { bubbles: true }));
+    $('bpeInput').value = 'ababa'; $('bpeTrain').click();
+    check($('bpeWordTable').rows.length > 1 && $('bpeWordTable').rows[1].cells[0].textContent === 'abab', 'Tabela de palavras únicas não acompanha o corpus');
+    check($('bpeWordCount').textContent === '2' && $('bpeUniqueCount').textContent === '1' && $('bpeInitialTokenCount').textContent === '9', 'Métricas do corpus não foram calculadas');
+    $('bpeRestart').click();
+    check($('bpeTopPairs').rows.length === 3 && $('bpeTopPairs').querySelector('.bpe-pair-bar'), 'Top pares não foi renderizado com barras');
+    check($('bpeCorpusTokens').querySelectorAll('.bpe-token').length > 0, 'Corpus colorido não foi renderizado');
+    $('bpeNext').click(); $('bpeNext').click();
+    check($('bpeMergeTable').rows.length === 3, 'Tabela não parou quando acabaram os pares');
+    check($('bpeMergeTable').rows[1].cells[2].textContent === '4' && $('bpeMergeTable').rows[2].cells[2].textContent === '2', 'Frequências não vieram do corpus');
+    check($('bpeIDs').textContent === '[257, 97]', 'Modelo final não aplicou as regras aprendidas');
+    $('bpeRestart').click();
+    check($('bpeIDs').textContent === '[97, 98, 97, 98, 97]', 'Reiniciar não voltou aos bytes');
+    $('bpeNext').focus(); $('bpeNext').click();
+    check($('bpeIDs').textContent === '[256, 256, 97]', 'Primeira regra não foi aplicada');
+    check(document.activeElement.id === 'bpeNext', 'Avançar perdeu foco do teclado');
+    $('bpeNext').click(); $('bpePrevious').click();
+    check($('bpeIDs').textContent === '[256, 256, 97]', 'Etapa anterior não desfez a regra');
+    $('bpeMergeTable').rows[2].querySelector('button').click();
+    check($('bpeIDs').textContent === '[257, 97]', 'Selecionar linha não selecionou o estágio');
+    const last = $('bpeMergeTable').rows[2].querySelector('button'); last.focus();
+    last.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+    check(document.activeElement.dataset.stage === '1', 'Home não moveu para primeira regra');
+    document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    check(document.activeElement.dataset.stage === '2', 'Seta para baixo não moveu para próxima regra');
+    document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+    document.activeElement.click();
+    check($('bpeIDs').textContent === '[256, 256, 97]', 'Regra alcançada pelo teclado não pode ser selecionada');
+    document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+    check(document.activeElement.dataset.stage === '2', 'End não moveu para última regra');
+    check([...$('bpeMergeTable').querySelectorAll('button')].filter(button => button.tabIndex === 0).length === 1, 'Tabela cria muitas paradas de Tab');
+  });
+  await test('BPE invalida treino ao editar corpus e resultados respondem ao slider', () => {
+    $('bpeCorpus').value = 'cdcd cdcd'; $('bpeCorpus').dispatchEvent(new Event('input', { bubbles: true }));
+    check($('bpeLearning').hidden && $('bpeTokenize').disabled && $('bpeNext').disabled, 'Treino antigo continua ativo após editar corpus');
+    $('bpeTrain').click();
+    check($('bpeIDs').textContent === '[97, 98, 97, 98, 97]', 'Novo corpus manteve merges antigos');
+    $('bpeCorpus').value = 'abab abab'; $('bpeMergeLimit').value = '0'; $('bpeMergeLimit').dispatchEvent(new Event('input', { bubbles: true })); $('bpeTrain').click();
+    check($('bpeCount').textContent === '5', 'Zero merges não mostrou cinco bytes');
+    $('bpeMergeLimit').value = '2'; $('bpeMergeLimit').dispatchEvent(new Event('input', { bubbles: true })); $('bpeTrain').click();
+    check($('bpeCount').textContent === '2', 'Slider não mudou a tokenização');
+  });
+  await test('BPE preserva Unicode e bytes desconhecidos e não executa HTML', () => {
+    const text = '\uFEFFação 👩🏽‍💻 漢字 e\u0301  \n<img src=x onerror="window.bpeInjected=true">';
+    $('bpeInput').value = text; $('bpeTokenize').click();
+    check(document.activeElement.id === 'bpeResultTitle', 'Tokenizar não levou o aluno ao resultado');
+    check($('bpeOriginal').textContent === text && $('bpeReconstructed').textContent === text, 'Texto não foi reconstruído exatamente');
+    check(!window.bpeInjected && !$('bpeTokens').querySelector('img'), 'Texto executou HTML');
+    const chips = [...$('bpeTokens').querySelectorAll('.bpe-token')];
+    check(chips.length > 0 && chips.every(chip => chip.textContent.includes('ID ')), 'Tokens não mostram seus IDs');
+    check(chips[0].className !== chips[1].className, 'Tokens não têm cores alternadas');
+    check($('bpeTokens').textContent.includes('0x'), 'Bytes incompletos não foram identificados');
+    $('bpeInput').value = 'outro'; $('bpeInput').dispatchEvent(new Event('input', { bubbles: true }));
+    check($('bpeTokenResults').hidden, 'Texto alterado deixou resultado antigo visível');
+    $('bpeTokenize').click(); check($('bpeReconstructed').textContent === 'outro', 'Tokenizar não atualizou o resultado');
+  });
+  await test('comparações PT/EN usam o modelo e BoW usa a mesma entrada sem alterar o laboratório', () => {
+    $('bpeRestore').click();
+    const pairs = [['tokenização', 'tokenization'], ['desenvolvedor', 'developer'], ['autenticação', 'authentication']];
+    const counts = [...$('bpeLanguageTable').rows].slice(1).map(row => [row.cells[1].textContent, row.cells[3].textContent]);
+    for (let i = 0; i < pairs.length; i++) for (let j = 0; j < 2; j++) {
+      $('bpeInput').value = pairs[i][j]; $('bpeTokenize').click();
+      check($('bpeCount').textContent === counts[i][j], 'Comparação de idioma usa uma contagem diferente do tokenizador');
+    }
+    docs('meu documento preservado');
+    $('bpeInput').value = 'gato gato cão'; $('bpeTokenize').click();
+    check($('bpeBowVector').textContent === '[1; 2]' && $('bpeBowVocabulary').textContent.includes('cão'), 'BoW não representou a mesma frase');
+    check($('docs').value === 'meu documento preservado', 'BPE substituiu textos do laboratório');
+    $('bpeInput').value = 'cão gato gato'; $('bpeTokenize').click();
+    check($('bpeBowVector').textContent === '[1; 2]' && $('bpeOriginal').textContent === 'cão gato gato', 'BoW deixou de ignorar ordem ou BPE perdeu o original');
+    $('reset').click();
+  });
+  await test('BPE trata corpus inválido, entrada vazia e continua independente de erros BoW', () => {
+    document.querySelector('[data-tab="bpe"]').click();
+    $('bpeCorpus').value = ''; $('bpeTrain').click();
+    check($('bpeError').textContent && $('bpeLearning').hidden, 'Corpus vazio não mostrou erro');
+    $('bpeRestore').click();
+    $('bpeInput').value = ''; $('bpeTokenize').click();
+    check($('bpeCount').textContent === '0' && $('bpeReconstructed').textContent === '', 'Texto vazio não é reversível');
+    $('bpeInput').value = '🙂'.repeat(4001); $('bpeTokenize').click();
+    check($('bpeInputError').textContent.includes('16.000') && $('bpeTokenResults').hidden, 'Limite UTF-8 não foi validado');
+    $('bpeRestore').click(); docs('');
+    check(!$('panel-bpe').hidden && $('bpeLearning').getClientRects().length > 0, 'Erro BoW escondeu o BPE independente');
+    $('bpeInput').value = 'teste'; $('bpeTokenize').click();
+    check($('bpeReconstructed').textContent === 'teste', 'BPE falhou após erro BoW');
+    $('reset').click();
+  });
+  await test('BPE mantém largura, navegação por abas e resultados completos em prévias', () => {
+    document.querySelector('[data-tab="bpe"]').click(); $('bpeRestore').click();
+    $('bpeInput').value = 'z'.repeat(250); $('bpeTokenize').click();
+    check($('bpeCount').textContent === '250' && $('bpeTokens').querySelectorAll('.bpe-token').length === 200, 'Prévia alterou a contagem ou não limitou blocos');
+    $('bpeShowAll').click();
+    check($('bpeTokens').querySelectorAll('.bpe-token').length === 250, 'Não foi possível inspecionar todos os tokens');
+    check(document.documentElement.scrollWidth <= innerWidth, 'BPE excede a largura da janela');
+    const tab = document.querySelector('[data-tab="bpe"]'); tab.focus();
+    tab.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+    check(document.activeElement.dataset.tab === 'main' && $('panel-bpe').hidden, 'Nova aba interrompeu navegação pelo teclado');
+    $('bpeRestore').click();
+  });
   document.querySelector('[data-tab="main"]')?.click();
   results.push(...(window.runtimeErrors || []).map(error => ({ name: 'Erro de JavaScript', pass: false, error })));
   const output = document.createElement('pre');
   output.id = 'browser-test-results';
   output.textContent = JSON.stringify(results);
   document.body.append(output);
+  return results;
 }
 
-const dir = mkdtempSync(join(tmpdir(), 'bagofwords-browser-'));
-try {
-  const source = readFileSync(join(__dirname, '..', 'bag-of-words.html'), 'utf8');
+async function runBrowser(browser, width, source, dir) {
+  const route = '/results-' + randomUUID();
+  let resolveResults, rejectResults, child, timeout, diagnostics = '';
+  const completion = new Promise((resolve, reject) => { resolveResults = resolve; rejectResults = reject; });
+  const server = createServer((req, res) => {
+    try {
+      const url = new URL(req.url, 'http://127.0.0.1');
+      if (url.pathname !== route) { res.writeHead(404).end(); return; }
+      const result = JSON.parse(url.searchParams.get('data'));
+      res.writeHead(200, { 'Content-Type': 'text/plain' }).end('Testes recebidos.');
+      resolveResults(result);
+    } catch (error) { res.writeHead(400).end(); rejectResults(error); }
+  });
+  await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
+  const collector = 'http://127.0.0.1:' + server.address().port + route;
+  const report = `results => location.replace(${JSON.stringify(collector)} + '?data=' + encodeURIComponent(JSON.stringify(results)))`;
   const html = source.replace('<head>', '<head><script>window.runtimeErrors=[];window.addEventListener("error",e=>runtimeErrors.push(e.message));</script>')
-    .replace('</body>', `<script>(${browserChecks.toString()})().catch(error=>{document.body.insertAdjacentHTML('beforeend','<pre id="browser-test-results">'+JSON.stringify([{pass:false,error:error.message}])+'</pre>')});</script></body>`);
-  const target = join(dir, 'checks.html');
-  writeFileSync(target, html);
-  for (const width of [1280, 390]) {
-    const chrome = spawnSync('google-chrome', ['--headless', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--no-proxy-server', '--user-data-dir=' + join(dir, 'profile-' + width), '--window-size=' + width + ',1000', '--virtual-time-budget=3000', '--dump-dom', 'file://' + target], { encoding: 'utf8', timeout: 30000, maxBuffer: 8 * 1024 * 1024 });
-    assert.equal(chrome.status, 0, chrome.stderr || 'Chrome não concluiu');
-    const match = [...chrome.stdout.matchAll(/<pre id="browser-test-results">([\s\S]*?)<\/pre>/g)].at(-1);
-    assert.ok(match, 'Chrome não produziu os resultados: ' + chrome.stderr);
-    const results = JSON.parse(match[1].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'));
-    for (const result of results) console.log(`${width}px ${result.pass ? 'PASS' : 'FAIL'} ${result.name || ''}${result.error ? ': ' + result.error : ''}`);
-    assert.ok(results.every(result => result.pass), 'Falha na integração em ' + width + 'px');
+    .replace('</body>', `<script>(${browserChecks.toString()})(${width}).then(${report}).catch(error=>(${report})([{name:'Execução dos testes',pass:false,error:error.message}]));</script></body>`);
+  const target = join(dir, browser + '-' + width + '.html'), profile = join(dir, browser + '-profile-' + width);
+  mkdirSync(profile); writeFileSync(target, html);
+  const localFile = pathToFileURL(target).href;
+  const args = browser === 'firefox'
+    ? ['--headless', '--no-remote', '--profile', profile, '--width', String(width), '--height', '1000', localFile]
+    : ['--headless', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage', '--no-proxy-server', '--user-data-dir=' + profile, '--window-size=' + width + ',1000', localFile];
+  if (browser === 'firefox') writeFileSync(join(profile, 'user.js'), 'user_pref("browser.shell.checkDefaultBrowser", false);\nuser_pref("datareporting.policy.dataSubmissionEnabled", false);\nuser_pref("network.proxy.type", 0);\n');
+  try {
+    child = spawn(browser, args, { stdio: ['ignore', 'ignore', 'pipe'], env: { ...process.env, MOZ_HEADLESS: '1', MOZ_HEADLESS_WIDTH: String(width), MOZ_HEADLESS_HEIGHT: '1000' } });
+    child.stderr.on('data', chunk => { diagnostics = (diagnostics + chunk).slice(-10000); });
+    child.once('error', rejectResults);
+    child.once('exit', code => rejectResults(new Error(browser + ' terminou antes dos resultados (' + code + '): ' + diagnostics)));
+    timeout = setTimeout(() => rejectResults(new Error(browser + ' não produziu resultados em 30s: ' + diagnostics)), 30000);
+    const results = await completion;
+    assert.ok(Array.isArray(results) && results.length > 0, 'Navegador não enviou testes');
+    for (const result of results) console.log(`${browser} ${width}px ${result.pass ? 'PASS' : 'FAIL'} ${result.name || ''}${result.error ? ': ' + result.error : ''}`);
+    assert.ok(results.every(result => result.pass), 'Falha na integração: ' + browser + ' ' + width + 'px');
+  } finally {
+    clearTimeout(timeout);
+    if (child && child.exitCode === null) {
+      await new Promise(resolve => {
+        const forced = setTimeout(() => { child.kill('SIGKILL'); resolve(); }, 3000);
+        child.once('exit', () => { clearTimeout(forced); resolve(); }); child.kill('SIGTERM');
+      });
+    }
+    await new Promise(resolve => server.close(resolve));
   }
-} finally {
-  rmSync(dir, { recursive: true, force: true });
 }
+
+(async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'bagofwords-browser-'));
+  try {
+    const source = readFileSync(join(__dirname, '..', 'bag-of-words-bpe.html'), 'utf8');
+    const selected = process.argv.find(arg => arg.startsWith('--browser='))?.slice('--browser='.length);
+    assert.ok(!selected || ['google-chrome', 'firefox'].includes(selected), 'Use --browser=google-chrome ou --browser=firefox');
+    for (const browser of selected ? [selected] : ['google-chrome', 'firefox']) for (const width of [1280, 390]) await runBrowser(browser, width, source, dir);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+})().catch(error => { console.error(error); process.exitCode = 1; });

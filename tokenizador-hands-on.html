@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Embedding Projector — visualização de dados multidimensionais</title>
+<style>
+:root{font-family:Roboto,Arial,sans-serif;color:#e8eaed;background:#202124;--bg:#202124;--panel:#292a2d;--panel-2:#303134;--line:#45464a;--muted:#9aa0a6;--blue:#8ab4f8;--blue-dark:#1a73e8;--orange:#fbbc04;--green:#81c995;--pink:#f28b82;--purple:#c58af9}*{box-sizing:border-box}html,body{height:100%;margin:0}body{overflow:hidden;background:var(--bg)}button,input,select{font:inherit}button{cursor:pointer}.app{height:100vh;display:grid;grid-template-rows:56px 1fr 27px;min-width:0}.topbar{display:flex;align-items:center;gap:18px;padding:0 19px;background:#292a2d;border-bottom:1px solid #3c4043;box-shadow:0 1px 5px #0005;z-index:4}.menu-button{width:34px;height:34px;border:0;background:transparent;border-radius:50%;color:#bdc1c6;font-size:22px;line-height:1}.menu-button:hover{background:#3c4043}.brand{font-size:20px;letter-spacing:.1px;color:#e8eaed;white-space:nowrap}.brand span{color:var(--blue);font-weight:500}.topbar-spacer{flex:1}.topbar-status{font-size:12px;color:var(--muted)}.topbar-button{border:1px solid #5f6368;border-radius:4px;background:transparent;color:#bdc1c6;padding:7px 12px;font-size:12px}.topbar-button:hover{background:#3c4043;color:#fff}.workspace{min-height:0;display:grid;grid-template-columns:274px minmax(0,1fr) 292px}.sidebar,.inspector{min-width:0;overflow:auto;background:var(--panel);border-right:1px solid var(--line)}.inspector{border-right:0;border-left:1px solid var(--line);padding-bottom:25px}.sidebar-section{padding:17px 16px;border-bottom:1px solid var(--line)}.section-title{margin:0 0 13px;color:#e8eaed;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}.subtle{color:var(--muted);font-size:11px;line-height:1.45;margin:7px 0 13px}.field{display:block;color:#bdc1c6;font-size:12px;margin:13px 0}.field select,.field input[type=search],.field input[type=number]{display:block;width:100%;margin-top:6px;border:1px solid #5f6368;border-radius:3px;background:#202124;color:#e8eaed;padding:8px 9px;font-size:12px}.field select:focus,.field input:focus,button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}.radio-row,.button-row{display:flex;gap:7px;flex-wrap:wrap}.radio-button,.small-button{border:1px solid #5f6368;background:transparent;border-radius:3px;color:#bdc1c6;padding:7px 10px;font-size:11px}.radio-button.active,.small-button.primary{border-color:var(--blue);background:#174a83;color:#fff}.radio-button:hover,.small-button:hover{background:#3c4043}.range-row{display:grid;grid-template-columns:1fr 38px;gap:8px;align-items:center;color:#bdc1c6;font-size:11px}.range-row input{width:100%;accent-color:var(--blue)}.range-value{text-align:right;color:var(--blue)}.check{display:flex;align-items:center;gap:8px;color:#bdc1c6;font-size:12px;margin:12px 0}.check input{accent-color:var(--blue);width:15px;height:15px}.file-input{width:100%;color:var(--muted);font-size:11px}.file-input::file-selector-button{border:1px solid #5f6368;border-radius:3px;background:#3c4043;color:#e8eaed;padding:7px 9px;margin-right:8px;cursor:pointer}.dataset-list{display:grid;gap:6px}.dataset-button{border:1px solid transparent;background:transparent;color:#bdc1c6;text-align:left;padding:8px 9px;border-radius:3px;font-size:12px}.dataset-button:hover,.dataset-button.active{background:#3c4043;color:#fff;border-color:#5f6368}.dataset-button small{display:block;color:var(--muted);margin-top:3px;font-size:10px}.viewport{position:relative;min-width:0;min-height:0;overflow:hidden;background:#101114}.viewport canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}.viewport canvas.dragging{cursor:grabbing}.viewport-tools{position:absolute;left:17px;top:16px;display:flex;gap:7px;align-items:center;pointer-events:none}.view-chip{border:1px solid #4d5156;border-radius:3px;background:#202124dd;color:#bdc1c6;padding:7px 9px;font-size:11px;pointer-events:auto}.view-chip strong{color:#e8eaed;font-weight:500}.zoom-tools{position:absolute;right:16px;top:16px;display:grid;gap:4px}.zoom-tools button{width:32px;height:31px;border:1px solid #55585d;background:#292a2ddd;color:#e8eaed;border-radius:3px;font-size:19px;line-height:1}.zoom-tools button:hover{background:#3c4043}.hint{position:absolute;left:50%;bottom:15px;transform:translateX(-50%);padding:7px 10px;border:1px solid #404348;background:#202124d9;border-radius:3px;color:#9aa0a6;font-size:11px;pointer-events:none;white-space:nowrap}.legend{position:absolute;left:17px;bottom:15px;display:flex;gap:12px;flex-wrap:wrap;max-width:45%;font-size:11px;color:#bdc1c6;pointer-events:none}.legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:var(--legend)}.selection-card{margin:15px 15px 18px;padding:13px;border:1px solid #5f6368;border-radius:4px;background:#202124}.selection-card h2{margin:0 0 6px;color:#fff;font-size:18px;font-weight:400;overflow-wrap:anywhere}.selection-card p{margin:4px 0;color:var(--muted);font-size:11px;line-height:1.45}.selection-card .group{color:var(--blue);font-size:12px}.inspector-section{padding:0 15px 17px;margin-top:17px;border-bottom:1px solid var(--line)}.inspector-section h3{margin:0 0 11px;color:#e8eaed;font-size:12px;font-weight:500}.metadata{width:100%;border-collapse:collapse;font-size:11px}.metadata th,.metadata td{text-align:left;padding:7px 4px;border-bottom:1px solid #3c4043;vertical-align:top}.metadata th{width:42%;color:var(--muted);font-weight:400}.metadata td{color:#e8eaed;overflow-wrap:anywhere}.vector{font:11px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;color:#bdc1c6;word-break:break-all}.neighbors{display:grid;gap:5px}.neighbor{display:flex;justify-content:space-between;gap:8px;width:100%;border:0;border-radius:3px;background:transparent;color:#bdc1c6;text-align:left;padding:7px 5px;font-size:11px}.neighbor:hover{background:#3c4043;color:#fff}.neighbor small{color:var(--muted)}.empty-inspector{color:var(--muted);font-size:11px;line-height:1.5}.statusbar{display:flex;align-items:center;gap:16px;padding:0 15px;background:#292a2d;border-top:1px solid #3c4043;color:#9aa0a6;font-size:11px}.statusbar strong{color:#bdc1c6;font-weight:400}.toast{position:absolute;left:50%;top:58px;transform:translateX(-50%) translateY(-10px);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;background:#e8eaed;color:#202124;border-radius:3px;padding:8px 12px;font-size:12px;z-index:5}.toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}.menu-backdrop{position:fixed;inset:56px 0 27px;background:#0008;z-index:8}.theory-drawer{position:fixed;top:56px;bottom:27px;left:0;width:min(410px,92vw);z-index:9;display:flex;flex-direction:column;background:#292a2d;border-right:1px solid #5f6368;box-shadow:8px 0 24px #0008;transform:translateX(-105%);transition:transform .22s ease}.theory-drawer.open{transform:translateX(0)}.theory-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:20px 18px 15px;border-bottom:1px solid var(--line)}.theory-kicker{margin:0 0 5px;color:var(--blue);font-size:10px;letter-spacing:.1em;font-weight:500}.theory-header h2{margin:0;color:#fff;font-size:20px;font-weight:400}.drawer-close{width:30px;height:30px;border:0;border-radius:50%;background:transparent;color:#bdc1c6;font-size:25px;line-height:1}.drawer-close:hover{background:#3c4043;color:#fff}.theory-nav{display:flex;gap:6px;flex-wrap:wrap;padding:12px 15px;border-bottom:1px solid var(--line)}.theory-nav a{color:#bdc1c6;border:1px solid #5f6368;border-radius:3px;padding:6px 8px;font-size:10px;text-decoration:none}.theory-nav a:hover,.theory-nav a:focus{color:#fff;border-color:var(--blue);background:#174a83}.theory-content{overflow:auto;padding:2px 18px 28px}.theory-content section{padding:17px 0;border-bottom:1px solid var(--line);scroll-margin-top:12px}.theory-content section:last-child{border-bottom:0}.theory-content h3{margin:0 0 9px;color:#e8eaed;font-size:14px;font-weight:500}.theory-content p,.theory-content li,.theory-content dd{color:#bdc1c6;font-size:12px;line-height:1.6}.theory-content p{margin:7px 0}.theory-content strong{color:#fff;font-weight:500}.theory-content code{color:#b8d4ff;font:11px ui-monospace,SFMono-Regular,Consolas,monospace}.theory-content ol{margin:8px 0 0;padding-left:21px}.theory-content li{padding:3px 0}.theory-content dl{margin:10px 0}.theory-content dt{color:var(--blue);font-size:12px;margin-top:8px}.theory-content dd{margin:2px 0 0 12px}.theory-callout{margin-top:12px;padding:10px 11px;border-left:3px solid var(--blue);background:#202124;color:#bdc1c6;font-size:11px;line-height:1.55}.theory-callout strong{color:var(--blue)}.theory-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 3px 0 5px}.theory-dot.blue{background:#8ab4f8}.theory-dot.pink{background:#f28b82}.theory-dot.green{background:#81c995}@media(max-width:1000px){.workspace{grid-template-columns:240px minmax(0,1fr)}.inspector{grid-column:1/-1;display:grid;grid-template-columns:260px 1fr;gap:0;height:220px;border-left:0;border-top:1px solid var(--line);overflow:auto}.selection-card{margin-top:15px}.inspector-section{border-bottom:0;border-left:1px solid var(--line);margin:15px 0 0;padding:0 15px}.app{grid-template-rows:56px minmax(0,1fr) 27px}.viewport{min-height:450px}}@media(max-width:680px){body{overflow:auto}.app{height:auto;min-height:100vh;grid-template-rows:56px auto 27px}.workspace{display:flex;flex-direction:column;min-height:0}.sidebar{order:2;max-height:none;border-right:0;border-top:1px solid var(--line)}.viewport{order:1;height:65vh;min-height:440px}.inspector{order:3;height:auto;display:block;border-top:1px solid var(--line);padding-bottom:10px}.inspector-section{border-left:0;border-bottom:1px solid var(--line);margin:17px 0 0;padding:0 15px 17px}.selection-card{margin:15px}.hint{display:none}.legend{max-width:80%;bottom:12px}.topbar-status{display:none}.brand{font-size:17px}.topbar{padding:0 11px;gap:10px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <button class="menu-button" id="menuButton" type="button" aria-label="Abrir menu de teoria" aria-controls="theoryDrawer" aria-expanded="false">☰</button>
+    <div class="brand"><span>Embedding</span> Projector</div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-status" id="topStatus">Amostra local · 30 pontos</div>
+    <button class="topbar-button" id="helpButton" type="button">?</button>
+  </header>
+  <div class="menu-backdrop" id="menuBackdrop" hidden></div>
+  <aside class="theory-drawer" id="theoryDrawer" aria-labelledby="theoryTitle" aria-hidden="true">
+    <div class="theory-header"><div><p class="theory-kicker">GUIA DO PROJETOR</p><h2 id="theoryTitle">Teoria e conceitos</h2></div><button class="drawer-close" id="closeTheory" type="button" aria-label="Fechar teoria">×</button></div>
+    <nav class="theory-nav" aria-label="Seções da teoria"><a href="#theory-embedding">Embedding</a><a href="#theory-groups">Grupos e dados</a><a href="#theory-projection">Projeções</a><a href="#theory-reading">Como ler</a></nav>
+    <div class="theory-content">
+      <section id="theory-embedding"><h3>O que é um embedding?</h3><p>Um <strong>embedding</strong> é uma representação numérica de um item. Uma palavra, uma frase ou um documento vira um vetor com muitas dimensões, por exemplo <code>[0,82, 0,18, 0,47]</code>. O modelo aprende posições em que itens usados em contextos parecidos tendem a ficar próximos.</p><p>O vetor não é a palavra nem uma definição de dicionário: é um conjunto de números que registra relações aprendidas pelo modelo.</p></section>
+      <section id="theory-groups"><h3>O que são estes grupos?</h3><p>Nesta amostra, cada ponto é uma <strong>palavra</strong>. Os 30 pontos foram organizados didaticamente em três grupos: <span class="theory-dot blue"></span> Animais, <span class="theory-dot pink"></span> Tecnologia e <span class="theory-dot green"></span> Natureza.</p><p>O grupo é um <strong>metadado</strong>: uma informação usada para colorir e comparar os pontos. Ele não foi descoberto automaticamente pelo gráfico. Em um conjunto real, cada ponto também poderia representar um documento, imagem, usuário ou outro objeto.</p><div class="theory-callout"><strong>Palavra ≠ documento</strong><br>Um documento pode gerar um único vetor ou vários vetores, dependendo do modelo. Aqui usamos palavras curtas para tornar a leitura dos grupos mais fácil.</div></section>
+      <section id="theory-projection"><h3>Por que o gráfico tem só 2D ou 3D?</h3><p>Um vetor real pode ter centenas de dimensões, mas uma tela só consegue mostrar duas ou três. Uma <strong>projeção</strong> reduz as dimensões para criar um mapa aproximado.</p><dl><dt>PCA</dt><dd>procura eixos lineares que preservam o máximo possível da variância global.</dd><dt>t-SNE</dt><dd>prioriza a vizinhança local; grupos podem aparecer separados mesmo quando as distâncias globais ficam distorcidas.</dd><dt>UMAP</dt><dd>tenta preservar relações locais e alguma estrutura global, também produzindo uma aproximação.</dd></dl><p>Trocar o método pode mudar a posição e a distância aparente dos pontos sem mudar os vetores originais.</p></section>
+      <section id="theory-reading"><h3>Como interpretar o mapa?</h3><ol><li><strong>Proximidade:</strong> pontos próximos na projeção podem ter representações semelhantes, mas confirme o método e a escala.</li><li><strong>Grupo:</strong> uma cor mostra um metadado, não prova que o modelo aprendeu três categorias perfeitas.</li><li><strong>Vizinhos:</strong> a lista à direita calcula uma distância entre os vetores da amostra e ajuda a investigar cada ponto.</li><li><strong>Rótulo:</strong> buscar “gato” apenas destaca o ponto; não altera o embedding nem treina o modelo.</li></ol><div class="theory-callout"><strong>Regra de ouro</strong><br>Uma imagem bonita de clusters é uma hipótese para investigar, não uma prova de significado.</div></section>
+      <section id="theory-controls"><h3>O que cada controle faz?</h3><p><strong>Colorir por Grupo</strong> usa o metadado da amostra. <strong>Distância ao selecionado</strong> cria uma escala de cor a partir do ponto ativo. <strong>2D/3D</strong> muda a quantidade de eixos exibidos. A busca, os rótulos e a grade alteram apenas a visualização.</p><p>O botão de arquivo aceita uma linha por item, com o rótulo na primeira coluna e números separados por vírgula ou tabulação nas colunas seguintes.</p></section>
+      <section id="theory-limits"><h3>Limites desta demonstração</h3><p>Os dados que acompanham esta página são locais e didáticos. Os vetores são gerados para demonstrar navegação; nenhum modelo de linguagem externo é executado no navegador. Por isso, os grupos não representam uma medição científica e as opções t-SNE/UMAP são aproximações visuais.</p></section>
+    </div>
+  </aside>
+  <div class="workspace">
+    <aside class="sidebar" aria-label="Controles do projetor">
+      <section class="sidebar-section">
+        <h2 class="section-title">Dados</h2>
+        <p class="subtle">Explore uma amostra local de embeddings. Arraste o gráfico para girar e use a roda do mouse para aproximar.</p>
+        <div class="dataset-list" role="listbox" aria-label="Amostras disponíveis">
+          <button class="dataset-button active" type="button" data-dataset="words">Palavras agrupadas<small>30 pontos · 3 grupos</small></button>
+          <button class="dataset-button" type="button" data-dataset="concepts">Conceitos de IA<small>24 pontos · 3 grupos</small></button>
+        </div>
+        <label class="field" for="fileInput">Carregar CSV/TSV local<input class="file-input" id="fileInput" type="file" accept=".csv,.tsv,.txt"></label>
+      </section>
+      <section class="sidebar-section">
+        <h2 class="section-title">Projeção</h2>
+        <label class="field" for="projection">Método<select id="projection"><option value="pca">PCA</option><option value="tsne">t-SNE</option><option value="umap">UMAP</option></select></label>
+        <div class="radio-row" role="group" aria-label="Dimensão da visualização"><button class="radio-button active" type="button" data-dimension="3d" aria-pressed="true">3D</button><button class="radio-button" type="button" data-dimension="2d" aria-pressed="false">2D</button></div>
+        <p class="subtle" id="projectionNote">Componentes principais preservando a maior variância possível.</p>
+      </section>
+      <section class="sidebar-section">
+        <h2 class="section-title">Aparência</h2>
+        <label class="field" for="colorBy">Colorir por<select id="colorBy"><option value="group">Grupo</option><option value="distance">Distância ao selecionado</option><option value="none">Cor única</option></select></label>
+        <label class="field" for="labelBy">Exibir rótulo<select id="labelBy"><option value="label">Palavra</option><option value="group">Grupo</option><option value="index">Índice</option></select></label>
+        <label class="check"><input id="showLabels" type="checkbox" checked> Mostrar rótulos</label>
+        <label class="check"><input id="showGrid" type="checkbox" checked> Mostrar eixos e grade</label>
+        <label class="field" for="pointSize">Tamanho dos pontos<div class="range-row"><input id="pointSize" type="range" min="3" max="12" value="6"><span class="range-value" id="pointSizeValue">6</span></div></label>
+      </section>
+    </aside>
+
+    <main class="viewport" aria-label="Visualização dos embeddings">
+      <canvas id="plot" tabindex="0" aria-label="Gráfico interativo de embeddings em três dimensões"></canvas>
+      <div class="viewport-tools"><div class="view-chip"><strong id="viewName">PCA · 3D</strong></div><div class="view-chip" id="selectionChip">Nenhum ponto selecionado</div></div>
+      <div class="zoom-tools" aria-label="Controles de zoom"><button id="zoomIn" type="button" aria-label="Aumentar zoom">+</button><button id="zoomOut" type="button" aria-label="Diminuir zoom">−</button></div>
+      <div class="legend" id="legend"><span style="--legend:#8ab4f8">Animais</span><span style="--legend:#f28b82">Tecnologia</span><span style="--legend:#81c995">Natureza</span></div>
+      <div class="hint">Arraste para girar · roda para zoom · clique em um ponto para selecionar</div>
+      <div class="toast" id="toast" role="status"></div>
+    </main>
+
+    <aside class="inspector" aria-label="Detalhes do ponto selecionado">
+      <div>
+        <div class="selection-card" id="selectionCard">
+          <p class="group">PONTO SELECIONADO</p>
+          <h2 id="selectedLabel">gato</h2>
+          <p id="selectedGroup">Animais</p>
+        </div>
+        <section class="inspector-section inspector-search">
+          <h3>Busca</h3>
+          <label class="field" for="search"><span class="visually-hidden">Buscar palavra</span><input type="search" id="search" placeholder="Buscar um ponto..." autocomplete="off"></label>
+          <div class="button-row"><button class="small-button" id="clearSearch" type="button">Limpar busca</button><button class="small-button" id="resetView" type="button">Resetar vista</button></div>
+        </section>
+        <section class="inspector-section">
+          <h3>Metadados</h3>
+          <table class="metadata"><tbody><tr><th>Índice</th><td id="metaIndex">0</td></tr><tr><th>Grupo</th><td id="metaGroup">Animais</td></tr><tr><th>Posição</th><td id="metaPosition">—</td></tr><tr><th>Distância</th><td id="metaDistance">—</td></tr></tbody></table>
+        </section>
+      </div>
+      <section class="inspector-section">
+        <h3>Vetor original</h3>
+        <div class="vector" id="vectorValue">[0.82, 0.18, 0.47, 0.61]</div>
+      </section>
+      <section class="inspector-section">
+        <h3>Vizinhos mais próximos</h3>
+        <p class="subtle">Clique em um item para selecioná-lo.</p>
+        <div class="neighbors" id="neighbors"></div>
+      </section>
+    </aside>
+  </div>
+  <footer class="statusbar"><span id="statusText">Pronto</span><span>·</span><strong id="datasetStatus">30 pontos</strong><span>·</span><span id="interactionStatus">PCA calculado localmente</span></footer>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const canvas = $('plot');
+  const ctx = canvas.getContext('2d');
+  const palette = ['#8ab4f8', '#f28b82', '#81c995', '#c58af9', '#fbbc04'];
+  const projectionNotes = {
+    pca: 'Componentes principais preservando a maior variância possível.',
+    tsne: 'Projeção exploratória que aproxima vizinhos locais.',
+    umap: 'Projeção exploratória que preserva estrutura local e global.'
+  };
+  const groups = [
+    {name:'Animais', center:[-.58,.18,.06], labels:['gato','cão','lobo','tigre','leão','urso','raposa','cavalo','coelho','pássaro']},
+    {name:'Tecnologia', center:[.54,.28,.02], labels:['código','servidor','rede','dados','modelo','robô','sensor','nuvem','programa','algoritmo']},
+    {name:'Natureza', center:[.02,-.54,-.05], labels:['árvore','flor','rio','mar','montanha','vento','chuva','sol','floresta','planeta']}
+  ];
+  const concepts = [
+    {name:'Linguagem', center:[-.52,.2,.02], labels:['texto','frase','palavra','token','idioma','semântica','contexto','leitura']},
+    {name:'Aprendizado', center:[.52,.22,.05], labels:['treino','dado','modelo','rede','classe','erro','ajuste','previsão']},
+    {name:'Visualização', center:[0,-.5,-.04], labels:['ponto','eixo','mapa','cor','distância','cluster','vetor','projeção']}
+  ];
+  let currentPoints = [];
+  let datasetName = 'Palavras agrupadas';
+  let selectedIndex = 0;
+  let projection = 'pca';
+  let dimension = '3d';
+  let colorBy = 'group';
+  let labelBy = 'label';
+  let showLabels = true;
+  let showGrid = true;
+  let pointSize = 6;
+  let query = '';
+  let zoom = 1;
+  let rotation = {x:-.28,y:.62};
+  let projectedPoints = [];
+  let dragging = false;
+  let moved = false;
+  let lastPointer = {x:0,y:0};
+
+  function makePoints(config) {
+    return config.flatMap((group, groupIndex) => group.labels.map((label, index) => {
+      const angle = index * 2.21 + groupIndex * .9;
+      const radius = .13 + (index % 4) * .035;
+      const x = group.center[0] + Math.cos(angle) * radius + Math.sin(index * 1.7) * .035;
+      const y = group.center[1] + Math.sin(angle) * radius + Math.cos(index * 1.3) * .035;
+      const z = group.center[2] + Math.cos(angle * 1.4) * radius * .8;
+      return {label, group:group.name, groupIndex, base:{x,y,z}, vector:[x + .8, y + .8, z + .8, Math.sin(angle) * .35 + .5], meta:`${group.name.toLowerCase()} · amostra didática`};
+    }));
+  }
+
+  function projectedCoordinates(point) {
+    let {x,y,z} = point.base;
+    if (projection === 'tsne') { x *= 1.18; y *= 1.12; z *= 1.3; }
+    if (projection === 'umap') { x = x * .9 + Math.sin(y * 9) * .055; y = y * .92 + Math.cos(x * 8) * .045; z *= .8; }
+    if (dimension === '2d') z = 0;
+    return {x,y,z};
+  }
+
+  function project(point, width, height) {
+    const c = projectedCoordinates(point);
+    const cy = Math.cos(rotation.y), sy = Math.sin(rotation.y);
+    const x1 = c.x * cy - c.z * sy;
+    const z1 = c.x * sy + c.z * cy;
+    const cx = Math.cos(rotation.x), sx = Math.sin(rotation.x);
+    const y1 = c.y * cx - z1 * sx;
+    const z2 = c.y * sx + z1 * cx;
+    const perspective = dimension === '2d' ? 1 : 1.3 / (1.72 + z2);
+    return {x:width / 2 + x1 * width * .43 * zoom * perspective,y:height / 2 - y1 * height * .43 * zoom * perspective,z:z2,size:Math.max(3,pointSize * perspective)};
+  }
+
+  function colorFor(point, index) {
+    if (colorBy === 'none') return '#8ab4f8';
+    if (colorBy === 'distance') {
+      const distance = distanceBetween(currentPoints[selectedIndex], point);
+      const hue = Math.max(0, 210 - Math.min(distance * 260, 210));
+      return `hsl(${hue} 78% 70%)`;
+    }
+    return palette[point.groupIndex % palette.length];
+  }
+
+  function distanceBetween(a,b) {
+    if (!a || !b) return 0;
+    return Math.hypot(a.base.x-b.base.x,a.base.y-b.base.y,a.base.z-b.base.z);
+  }
+
+  function labelFor(point,index) {
+    if (labelBy === 'group') return point.group;
+    if (labelBy === 'index') return String(index);
+    return point.label;
+  }
+
+  function drawLine(a,b,color,width=1) {
+    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke();
+  }
+
+  function drawGrid(width,height) {
+    if (!showGrid) return;
+    const origin = project({base:{x:0,y:0,z:0}},width,height);
+    const axes = [
+      {point:{base:{x:.92,y:0,z:0}},color:'#8ab4f8',label:'X'},
+      {point:{base:{x:0,y:.92,z:0}},color:'#81c995',label:'Y'},
+      {point:{base:{x:0,y:0,z:.92}},color:'#f28b82',label:'Z'}
+    ];
+    axes.forEach(axis => { const end=project(axis.point,width,height);drawLine(origin,end,axis.color,1.5);ctx.fillStyle=axis.color;ctx.font='11px Roboto,Arial';ctx.fillText(axis.label,end.x+5,end.y+4); });
+    for (let i=-3;i<=3;i++) {
+      const offset=i*.27;
+      drawLine(project({base:{x:-.9,y:0,z:offset}},width,height),project({base:{x:.9,y:0,z:offset}},width,height),'#30343a');
+      drawLine(project({base:{x:offset,y:0,z:-.9}},width,height),project({base:{x:offset,y:0,z:.9}},width,height),'#30343a');
+    }
+  }
+
+  function render() {
+    const rect=canvas.getBoundingClientRect();
+    const ratio=window.devicePixelRatio || 1;
+    canvas.width=Math.max(1,Math.floor(rect.width*ratio));canvas.height=Math.max(1,Math.floor(rect.height*ratio));
+    ctx.setTransform(ratio,0,0,ratio,0,0);
+    const width=rect.width,height=rect.height;
+    ctx.clearRect(0,0,width,height);
+    ctx.fillStyle='#101114';ctx.fillRect(0,0,width,height);
+    drawGrid(width,height);
+    projectedPoints=currentPoints.map((point,index)=>({...project(point,width,height),index,point})).sort((a,b)=>a.z-b.z);
+    const normalizedQuery=query.trim().toLocaleLowerCase('pt-BR');
+    projectedPoints.forEach(item => {
+      const matches=!normalizedQuery || item.point.label.toLocaleLowerCase('pt-BR').includes(normalizedQuery) || item.point.group.toLocaleLowerCase('pt-BR').includes(normalizedQuery);
+      const selected=item.index===selectedIndex;
+      ctx.globalAlpha=matches ? 1 : .2;
+      ctx.beginPath();ctx.arc(item.x,item.y,item.size,0,Math.PI*2);ctx.fillStyle=colorFor(item.point,item.index);ctx.fill();
+      if (selected) {ctx.globalAlpha=1;ctx.beginPath();ctx.arc(item.x,item.y,item.size+6,0,Math.PI*2);ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();}
+      if (showLabels && (matches || selected)) {ctx.globalAlpha=matches ? .95 : .5;ctx.fillStyle='#e8eaed';ctx.font=`${selected ? 'bold ' : ''}11px Roboto,Arial`;ctx.fillText(labelFor(item.point,item.index),item.x+item.size+5,item.y- item.size-2);}
+    });
+    ctx.globalAlpha=1;
+    $('viewName').textContent=`${projection.toUpperCase()} · ${dimension.toUpperCase()}`;
+    $('selectionChip').textContent=selectedIndex === null ? 'Nenhum ponto selecionado' : currentPoints[selectedIndex]?.label || 'Nenhum ponto selecionado';
+  }
+
+  function renderInspector() {
+    const point=currentPoints[selectedIndex];
+    if (!point) return;
+    const position=projectedPoints.find(item=>item.index===selectedIndex);
+    $('selectedLabel').textContent=point.label;$('selectedGroup').textContent=point.meta;
+    $('metaIndex').textContent=selectedIndex;$('metaGroup').textContent=point.group;
+    $('metaPosition').textContent=position ? `${position.x.toFixed(0)}, ${position.y.toFixed(0)}` : '—';
+    $('metaDistance').textContent='0.00';
+    $('vectorValue').textContent=`[${point.vector.map(value=>value.toFixed(2)).join(', ')}]`;
+    const neighbors=currentPoints.map((item,index)=>({item,index,distance:distanceBetween(point,item)})).filter(entry=>entry.index!==selectedIndex).sort((a,b)=>a.distance-b.distance).slice(0,Number($('neighborCount')?.value || 5));
+    const container=$('neighbors');container.replaceChildren();
+    neighbors.forEach(entry=>{const button=document.createElement('button');button.type='button';button.className='neighbor';button.dataset.index=entry.index;const name=document.createElement('span');name.textContent=entry.item.label;const distance=document.createElement('small');distance.textContent=entry.distance.toFixed(2);button.append(name,distance);container.append(button);});
+  }
+
+  function selectPoint(index) {
+    if (index === null || !currentPoints[index]) return;
+    selectedIndex=index;render();renderInspector();$('statusText').textContent=`Selecionado: ${currentPoints[index].label}`;
+  }
+
+  function hitTest(x,y) {
+    let best=null,bestDistance=Infinity;
+    projectedPoints.forEach(item=>{const distance=Math.hypot(x-item.x,y-item.y);if(distance < Math.max(15,item.size+8) && distance<bestDistance){best=item.index;bestDistance=distance;}});
+    return best;
+  }
+
+  function showToast(message) {const toast=$('toast');toast.textContent=message;toast.classList.add('visible');window.clearTimeout(showToast.timer);showToast.timer=window.setTimeout(()=>toast.classList.remove('visible'),2200);}
+
+  function loadDataset(key) {
+    const config=key === 'concepts' ? concepts : groups;
+    currentPoints=makePoints(config);datasetName=key === 'concepts' ? 'Conceitos de IA' : 'Palavras agrupadas';selectedIndex=0;query='';$('search').value='';$('topStatus').textContent=`Amostra local · ${currentPoints.length} pontos`;$('datasetStatus').textContent=`${currentPoints.length} pontos · ${datasetName}`;render();renderInspector();
+    document.querySelectorAll('.dataset-button').forEach(button=>button.classList.toggle('active',button.dataset.dataset===key));
+  }
+
+  function parseFile(file) {
+    file.text().then(text=>{const rows=text.trim().split(/\r?\n/).map(row=>row.split(/[,\t]/));const points=rows.map((row,index)=>{const numbers=row.slice(1).map(Number).filter(Number.isFinite);return {label:row[0] || `ponto ${index}`,group:'Arquivo local',groupIndex:0,base:{x:numbers[0] || 0,y:numbers[1] || 0,z:numbers[2] || 0},vector:numbers.slice(0,8),meta:`arquivo local · ${numbers.length} dimensões`};}).filter(point=>point.vector.length);if(!points.length) throw new Error('Nenhuma linha com números foi encontrada.');currentPoints=points;selectedIndex=0;datasetName=file.name;$('topStatus').textContent=`Arquivo local · ${points.length} pontos`;$('datasetStatus').textContent=`${points.length} pontos · ${file.name}`;render();renderInspector();showToast(`${points.length} pontos carregados`);}).catch(error=>showToast(error.message));
+  }
+
+  const menuButton = $('menuButton');
+  const theoryDrawer = $('theoryDrawer');
+  const menuBackdrop = $('menuBackdrop');
+  const closeTheory = $('closeTheory');
+  let theoryPreviouslyFocused = menuButton;
+  function setTheoryOpen(open) {
+    theoryDrawer.classList.toggle('open', open);
+    theoryDrawer.setAttribute('aria-hidden', String(!open));
+    menuButton.setAttribute('aria-expanded', String(open));
+    menuButton.setAttribute('aria-label', open ? 'Fechar menu de teoria' : 'Abrir menu de teoria');
+    menuBackdrop.hidden = !open;
+    if (open) { theoryPreviouslyFocused = document.activeElement && document.activeElement !== document.body ? document.activeElement : menuButton; closeTheory.focus(); }
+    else { (theoryPreviouslyFocused || menuButton).focus(); }
+  }
+  menuButton.addEventListener('click', () => setTheoryOpen(!theoryDrawer.classList.contains('open')));
+  closeTheory.addEventListener('click', () => setTheoryOpen(false));
+  menuBackdrop.addEventListener('click', () => setTheoryOpen(false));
+  document.addEventListener('keydown', event => { if (event.key === 'Escape' && theoryDrawer.classList.contains('open')) { event.preventDefault(); setTheoryOpen(false); } });
+  $('projection').addEventListener('change',event=>{projection=event.target.value;$('projectionNote').textContent=projectionNotes[projection];$('interactionStatus').textContent=`${projection.toUpperCase()} calculado localmente`;render();renderInspector();});
+  $('colorBy').addEventListener('change',event=>{colorBy=event.target.value;render();});
+  $('labelBy').addEventListener('change',event=>{labelBy=event.target.value;render();});
+  $('showLabels').addEventListener('change',event=>{showLabels=event.target.checked;render();});
+  $('showGrid').addEventListener('change',event=>{showGrid=event.target.checked;render();});
+  $('pointSize').addEventListener('input',event=>{pointSize=Number(event.target.value);$('pointSizeValue').textContent=pointSize;render();});
+  $('search').addEventListener('input',event=>{query=event.target.value;render();});
+  $('clearSearch').addEventListener('click',()=>{$('search').value='';query='';render();$('search').focus();});
+  $('resetView').addEventListener('click',()=>{zoom=1;rotation={x:-.28,y:.62};render();showToast('Vista resetada');});
+  $('zoomIn').addEventListener('click',()=>{zoom=Math.min(2.7,zoom+.15);render();});
+  $('zoomOut').addEventListener('click',()=>{zoom=Math.max(.45,zoom-.15);render();});
+  document.querySelectorAll('[data-dimension]').forEach(button=>button.addEventListener('click',()=>{dimension=button.dataset.dimension;document.querySelectorAll('[data-dimension]').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',active);});render();}));
+  document.querySelectorAll('.dataset-button').forEach(button=>button.addEventListener('click',()=>loadDataset(button.dataset.dataset)));
+  $('fileInput').addEventListener('change',event=>{if(event.target.files[0]) parseFile(event.target.files[0]);});
+  $('neighbors').addEventListener('click',event=>{const button=event.target.closest('[data-index]');if(button)selectPoint(Number(button.dataset.index));});
+  $('helpButton').addEventListener('click',()=>showToast('Arraste o gráfico, selecione pontos e explore os controles laterais.'));
+  canvas.addEventListener('pointerdown',event=>{dragging=true;moved=false;lastPointer={x:event.clientX,y:event.clientY};canvas.classList.add('dragging');canvas.setPointerCapture(event.pointerId);});
+  canvas.addEventListener('pointermove',event=>{if(!dragging)return;const dx=event.clientX-lastPointer.x,dy=event.clientY-lastPointer.y;if(Math.abs(dx)+Math.abs(dy)>2)moved=true;rotation.y+=dx*.008;rotation.x=Math.max(-1.35,Math.min(1.35,rotation.x+dy*.008));lastPointer={x:event.clientX,y:event.clientY};render();});
+  canvas.addEventListener('pointerup',event=>{if(!dragging)return;dragging=false;canvas.classList.remove('dragging');canvas.releasePointerCapture(event.pointerId);if(!moved){const rect=canvas.getBoundingClientRect();const index=hitTest(event.clientX-rect.left,event.clientY-rect.top);if(index !== null) selectPoint(index);}});
+  canvas.addEventListener('pointercancel',()=>{dragging=false;canvas.classList.remove('dragging');});
+  canvas.addEventListener('wheel',event=>{event.preventDefault();zoom=Math.max(.45,Math.min(2.7,zoom+(event.deltaY<0?.12:-.12)));render();},{passive:false});
+  canvas.addEventListener('keydown',event=>{if(event.key==='ArrowLeft')rotation.y-=.08;if(event.key==='ArrowRight')rotation.y+=.08;if(event.key==='ArrowUp')rotation.x-=.08;if(event.key==='ArrowDown')rotation.x+=.08;if(event.key==='+'||event.key==='=')zoom=Math.min(2.7,zoom+.12);if(event.key==='-')zoom=Math.max(.45,zoom-.12);render();});
+  window.addEventListener('resize',render);
+  loadDataset('words');
+})();
+</script>
+</body>
+</html>

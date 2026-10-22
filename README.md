@@ -2,13 +2,25 @@
 
 Aplicação educativa em português para acompanhar a transformação de textos em vetores. Funciona inteiramente no navegador, sem backend, bibliotecas externas ou envio de documentos.
 
-**Acesse o laboratório online:** [https://sergiopacheco.github.io/bagofwords/bag-of-words.html](https://sergiopacheco.github.io/bagofwords/bag-of-words.html)
+**Páginas disponíveis:**
 
-Abra o link em um navegador moderno. Não é necessário instalar dependências ou iniciar um servidor. Para usar localmente, baixe o arquivo `bag-of-words.html` e abra-o no navegador.
+- [`bag-of-words.html`](./bag-of-words.html) — versão original e enxuta do laboratório de **Bag of Words**. Mostra documentos, vocabulário, matriz documento-termo, contagem, presença binária, TF-IDF e o que o algoritmo não entende: ordem e sinônimos.
+- [`bag-of-words-bpe.html`](./bag-of-words-bpe.html) — laboratório completo de BoW, com guia passo a passo, explorações de similaridade, distâncias, frequência, N-gramas e a aba expandida de **Tokenização BPE**.
+- [`tokenizador-hands-on.html`](./tokenizador-hands-on.html) — clone básico e independente do **TensorFlow Embedding Projector**. Exibe grupos de palavras em 2D/3D, permite girar, aproximar, buscar pontos, consultar vizinhos e ler a teoria pelo ícone de sanduíche.
+
+**Acesse a versão original online:** [https://sergiopacheco.github.io/bagofwords/bag-of-words.html](https://sergiopacheco.github.io/bagofwords/bag-of-words.html)
+
+As páginas são independentes e nenhuma substitui outra. Abra o arquivo desejado em um navegador moderno. Não é necessário instalar dependências ou iniciar um servidor. Todas funcionam localmente e não enviam documentos ou dados para serviços externos.
+
+## Qual página usar?
+
+- Para uma introdução curta à representação por contagem, comece por `bag-of-words.html`.
+- Para acompanhar a aula completa de BoW e avançar até BPE, use `bag-of-words-bpe.html`.
+- Para estudar embeddings, grupos, projeções e visualização de pontos, use `tokenizador-hands-on.html`. Esta página é uma demonstração visual: não executa um modelo de linguagem real nem gera embeddings com `sentence-transformers`.
 
 ## Aprender passo a passo
 
-A página começa com um guia de seis etapas: **texto → tokens → vocabulário → contagem → vetor → comparação**. Dois documentos curtos (`gato gato cão` e `cão`) permitem acompanhar de onde vem cada número.
+Na página completa `bag-of-words-bpe.html`, o guia começa com seis etapas: **texto → tokens → vocabulário → contagem → vetor → comparação**. Dois documentos curtos (`gato gato cão` e `cão`) permitem acompanhar de onde vem cada número.
 
 - Faça uma previsão antes de **Revelar esta etapa**.
 - Na etapa **Contagem**, clique em **Próximo token**: a ocorrência e a célula correspondente ficam destacadas, e o contador aumenta uma unidade. Cada documento usa sua própria linha no mesmo vocabulário.
@@ -56,7 +68,39 @@ Até 200 documentos, 2.000 termos únicos e 100.000 caracteres por análise. Par
 
 As abas aceitam clique, setas esquerda/direita, Home e End. A matriz de similaridade tem uma única parada de Tab: use as setas para percorrer suas células e Enter ou espaço para escolher um par. **Voltar ao exemplo** restaura documentos, opções, seleções e modo de contagem. Entradas inválidas ocultam os resultados anteriores até a correção.
 
-BPE, embeddings, busca, classificação e exportação ficam para etapas futuras.
+## Tokenização BPE — O modelo não lê letras
+
+Abra **Explorar o laboratório → Tokenização BPE**. A nova aba funciona de forma independente da vetorização BoW, inclusive quando os documentos da exploração têm uma entrada inválida.
+
+1. Edite o corpus e ajuste o controle de **0 a 100 merges**. Clique em **Treinar BPE**. Os pares e as frequências da tabela são calculados com os textos informados; não existem divisões de palavras fixadas previamente.
+2. O treinamento aplica todas as regras aprendidas. Use **Reiniciar** para voltar à base e **Próxima etapa**, **Etapa anterior** ou as linhas da tabela para aplicar um prefixo das regras, sempre na ordem aprendida.
+3. Digite qualquer texto e clique em **Tokenizar**. Veja os bytes iniciais, os blocos coloridos com IDs, a quantidade de tokens, a sequência completa de IDs e a reconstrução exata. Os exemplos incluem tokenização/tokenization, desenvolvedor/developer e autenticação/authentication.
+4. Compare português e inglês: as duas colunas usam o mesmo modelo e a mesma etapa. As contagens dependem do corpus; não reproduzem GPT, Qwen ou outros modelos reais.
+5. Confira a mesma frase como vetor de contagens BoW e como sequência BPE. Essa comparação não modifica os documentos nem as opções do laboratório.
+
+O núcleo `BPE` está em um script próprio, separado da renderização. O vocabulário inicial contém **todos os 256 bytes UTF-8**, com IDs de 0 a 255; cada merge recebe um novo ID a partir de 256. A frequência dos pares é recalculada após cada união. Empates usam o menor ID esquerdo e, depois, o menor ID direito. Contam-se candidatos sobrepostos, mas cada regra é aplicada da esquerda para a direita, sem sobreposição.
+
+Cada trecho sem espaços e cada caractere de espaço é um segmento independente: merges não atravessam esses limites. Não há normalização de caixa, acentos, espaços ou pontuação. Bytes que ainda não formam um caractere completo aparecem em hexadecimal; a reconstrução concatena os bytes antes de decodificar. Assim, emojis e caracteres ausentes do corpus continuam representáveis. Texto UTF-16 malformado é rejeitado com mensagem explícita.
+
+Corpus e entrada BPE aceitam até **16.000 bytes UTF-8** cada. Se acabarem os pares, o treino termina antes do número de merges solicitado. Editar o corpus ou o limite invalida os resultados até um novo treino. Prévias de 200 blocos são identificadas; as contagens, os IDs e a reconstrução usam todos os tokens, e a entrada tokenizada permite mostrar todos os blocos.
+
+Esta é uma demonstração educacional de BPE em bytes, não um modelo de linguagem. IDs identificam tokens; os embeddings que um modelo associaria a esses IDs não são calculados aqui. Referência conceitual: [implementação educacional de BPE do tiktoken](https://github.com/openai/tiktoken/blob/main/tiktoken/_educational.py), consultada sem incorporar dependências ou modelos.
+
+No laboratório de BoW/BPE, embeddings reais, busca semântica, classificação e exportação ficam para etapas futuras. O mapa de distâncias dessa página usa PCA; ela não implementa t-SNE. Para explorar uma visualização separada de pontos, grupos, busca e projeções locais, use `tokenizador-hands-on.html`.
+
+## Visualizador de embeddings — `tokenizador-hands-on.html`
+
+Esta página é uma demonstração independente inspirada no **TensorFlow Embedding Projector**. Ela não substitui os laboratórios de BoW e BPE e não executa um modelo de linguagem real.
+
+- **Canvas 2D/3D:** os pontos representam itens da amostra local; arraste para girar, use a roda do mouse ou os botões para aproximar e clique em um ponto para selecioná-lo.
+- **Amostras:** `Palavras agrupadas` possui 30 palavras em três grupos didáticos — Animais, Tecnologia e Natureza. `Conceitos de IA` possui uma segunda amostra com 24 itens. Os grupos são metadados da demonstração, não categorias aprendidas automaticamente.
+- **Projeção:** PCA, t-SNE e UMAP aparecem como modos exploratórios locais. As posições são didáticas e não reproduzem os algoritmos completos nem embeddings produzidos por um modelo externo.
+- **Busca e painel direito:** busque uma palavra ou grupo; os pontos que correspondem ficam destacados. O painel direito mostra o item selecionado, grupo, posição, vetor, distância e vizinhos mais próximos.
+- **Aparência:** altere o método de colorização, o tipo de rótulo, a grade e o tamanho dos pontos. Essas opções mudam a visualização, não os dados originais.
+- **Teoria:** abra o ícone de sanduíche para consultar embeddings, vetores, grupos, documentos, metadados, projeções, vizinhança, interpretação e limitações.
+- **Arquivo local:** o controle de carregamento aceita CSV, TSV ou TXT com o rótulo na primeira coluna e valores numéricos nas colunas seguintes. O arquivo é processado somente no navegador.
+
+Como a amostra é sintética e educativa, proximidade visual não deve ser interpretada como prova de significado. Uma projeção para duas ou três dimensões pode distorcer distâncias e sobrepor pontos; use os metadados e os vizinhos como apoio para formular hipóteses.
 
 ## Verificação
 
@@ -64,7 +108,10 @@ Com Node.js 20 ou superior:
 
 ```sh
 node tests/nlp.test.cjs
+node tests/bpe.test.cjs
 node tests/browser.test.cjs
 ```
 
-O primeiro comando testa o núcleo de cálculos extraído do próprio HTML. O segundo requer `google-chrome` disponível no PATH e executa a aplicação real em larguras de 1280 e 390 pixels, verificando interações, atualização automática, acessibilidade por teclado, entrada inválida e texto tratado com segurança. Os arquivos temporários são removidos ao finalizar.
+O comando de NLP extrai o núcleo da versão original `bag-of-words.html`; o comando de BPE extrai o núcleo da versão completa `bag-of-words-bpe.html`. Os testes BPE verificam frequências, determinismo, ordem dos merges, estágios, fallback em bytes, reconstrução de Unicode, limites e erros.
+
+O último comando requer `google-chrome` e `firefox` disponíveis no PATH e executa as mesmas interações em ambos, solicitando larguras de 1280 e 390 pixels. Em modo headless, estes navegadores podem expor 500px como largura CSS mínima para a janela estreita; o teste garante que a viewport não fique menor que a solicitada e valida todo o layout responsivo nesse limite. Inclui todas as explorações anteriores, guia, acessibilidade por teclado, atualizações, segurança de texto e a nova aba BPE. O HTML é aberto diretamente por `file://`; um coletor temporário em `127.0.0.1` recebe apenas os resultados durante os testes. A aplicação continua sem servidor ou chamadas de rede. Perfis e arquivos temporários são removidos ao finalizar. Para verificar apenas um navegador, use `node tests/browser.test.cjs --browser=firefox` ou `--browser=google-chrome`.
