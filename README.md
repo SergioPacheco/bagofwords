@@ -8,7 +8,7 @@ Aplicação educativa em português para acompanhar a transformação de textos 
 - [`bag-of-words-bpe.html`](./bag-of-words-bpe.html) — laboratório completo de BoW, com guia passo a passo, explorações de similaridade, distâncias, frequência, N-gramas e a aba expandida de **Tokenização BPE**.
 - [`tokenizador-hands-on.html`](./tokenizador-hands-on.html) — clone básico e independente do **TensorFlow Embedding Projector**. Exibe grupos de palavras em 2D/3D, permite girar, aproximar, buscar pontos, consultar vizinhos e ler a teoria pelo ícone de sanduíche.
 
-**Acesse a versão original online:** [https://sergiopacheco.github.io/bagofwords/bag-of-words.html](https://sergiopacheco.github.io/bagofwords/bag-of-words.html)
+**Acesse o visualizador online:** [https://sergiopacheco.github.io/bagofwords/tokenizador-hands-on.html](https://sergiopacheco.github.io/bagofwords/tokenizador-hands-on.html)
 
 As páginas são independentes e nenhuma substitui outra. Abra o arquivo desejado em um navegador moderno. Não é necessário instalar dependências ou iniciar um servidor. Todas funcionam localmente e não enviam documentos ou dados para serviços externos.
 
